@@ -29,10 +29,10 @@ public class ZegoDataCenter {
 
     private static  final String GET_ROOM_LIST_URL_TEST = "https://test2-liveroom-api.zego.im/demo/roomlist?appid=%d";
 
-    public static final long APP_ID = ;  // 请联系技术支持获取APP_ID
+    public static final long APP_ID = 3939196392l;  // 请联系技术支持获取APP_ID
 
 
-    public static final byte[] APP_SIGN = ;   // 请联系技术支持获取APP_SIGN
+    public static final byte[] APP_SIGN = {(byte)0x35,(byte)0x9f,(byte)0x8a,(byte)0x47,(byte)0x30,(byte)0xac,(byte)0xd2,(byte)0xb5,(byte)0x45,(byte)0x3c,(byte)0x20,(byte)0x9c,(byte)0x05,(byte)0xcd,(byte)0xbc,(byte)0xbb,(byte)0xcc,(byte)0x9d,(byte)0x68,(byte)0xc0,(byte)0xdc,(byte)0x71,(byte)0x10,(byte)0xa7,(byte)0x8c,(byte)0x53,(byte)0x0d,(byte)0x10,(byte)0x17,(byte)0xeb,(byte)0xe3,(byte)0xd0};
 
     public static final ZegoChatroomUser ZEGO_USER = new ZegoChatroomUser(); // 根据自己情况初始化唯一识别USER
 
