@@ -108,14 +108,12 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
      * 初始化 View
      */
     private void initView() {
-        TextView welcomeTv = findViewById(R.id.tv_welcome);
         mTipLayout = findViewById(R.id.tip_layout);
         mTipTitleTv = findViewById(R.id.tip_title_tv);
         mTipDescTv = findViewById(R.id.tip_desc_tv);
         mSwipeLayout = findViewById(R.id.swipe);
         mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        welcomeTv.setText(getResources().getString(R.string.welcome_user, ZegoDataCenter.ZEGO_USER.userName));
 
         // 初始化QueueAdapter
         mChatroomListAdapter = new ChatroomListAdapter();

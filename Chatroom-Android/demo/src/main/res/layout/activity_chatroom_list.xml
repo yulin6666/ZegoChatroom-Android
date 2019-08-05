@@ -19,17 +19,6 @@
         android:textColor="#333333"
         android:textSize="24sp" />
 
-    <TextView
-        android:id="@+id/tv_welcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_app_name"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:textColor="#333333"
-        android:textSize="14sp"
-        tools:text="欢迎您IPhone 6s-02" />
-
     <Button
         android:id="@+id/bt_create_room"
         android:layout_width="match_parent"
@@ -42,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bt_create_room"
-        android:layout_below="@id/tv_welcome"
+        android:layout_below="@id/tv_app_name"
         android:layout_marginTop="24dp">
 
         <LinearLayout
