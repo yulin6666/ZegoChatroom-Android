@@ -21,9 +21,6 @@ import com.zego.chatroom.demo.data.ZegoDataCenter;
 public class CreateRoomDialog extends Dialog implements View.OnClickListener {
 
     public EditText mEtRoomName;     // 房间名字 EditText
-    public EditText mEtAudioBitrate;  // 音频码率 EditText
-    public EditText mEtAudioChannelCount;  // 声道数
-    public EditText mEtLatencyMode;   // 延时模式
     public Button mBtCreateNow;  // 立即创建按钮
 
     public CreateRoomDialog(@NonNull Context context) {
@@ -41,12 +38,7 @@ public class CreateRoomDialog extends Dialog implements View.OnClickListener {
         setContentView(view);
 
         mEtRoomName = view.findViewById(R.id.et_room_name);
-        mEtAudioBitrate = view.findViewById(R.id.et_audio_bitrate);
-        mEtAudioChannelCount = view.findViewById(R.id.et_audio_channel_count);
-        mEtLatencyMode = view.findViewById(R.id.et_latency_mode);
         mBtCreateNow = view.findViewById(R.id.bt_create_now);
-
-        mEtRoomName.setHint(ZegoDataCenter.ZEGO_USER.userName);
 
         findViewById(R.id.iv_close).setOnClickListener(this);
     }
@@ -58,9 +50,6 @@ public class CreateRoomDialog extends Dialog implements View.OnClickListener {
 
     public void resetInput() {
         mEtRoomName.setText("");
-        mEtAudioBitrate.setText("");
-        mEtAudioChannelCount.setText("");
-        mEtLatencyMode.setText("");
     }
 
     @Override

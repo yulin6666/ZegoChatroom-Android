@@ -164,17 +164,14 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     }
 
     private void createRoom() {
-        String audioBitrateString = mCreateRoomDialog.mEtAudioBitrate.getText().toString();
-        String audioChannelCountString = mCreateRoomDialog.mEtAudioChannelCount.getText().toString();
-        String latencyModeString = mCreateRoomDialog.mEtLatencyMode.getText().toString();
 
         String roomID = ChatroomInfoHelper.getRoomID();
         String roomName = mCreateRoomDialog.mEtRoomName.getText().toString();
         String ownerID = ZegoDataCenter.ZEGO_USER.userID;
         String ownerName = ZegoDataCenter.ZEGO_USER.userName;
-        int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString(audioBitrateString);
-        int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString(audioChannelCountString);
-        int latencyMode = ChatroomInfoHelper.getLatencyModeFromString(latencyModeString);
+        int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString("");
+        int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString("");
+        int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
 
         mCreateRoomDialog.resetInput();
 
@@ -233,9 +230,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
             initCreateRoomDialog();
         }
 
-        mCreateRoomDialog.mEtAudioBitrate.setText("");
         mCreateRoomDialog.mEtRoomName.setText("");
-
         mCreateRoomDialog.show();
     }
 
