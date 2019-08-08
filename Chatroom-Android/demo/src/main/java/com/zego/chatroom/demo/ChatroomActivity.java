@@ -95,7 +95,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private MsgAdapter mMsgAdapter;
 
 
-    private TextView mTvSpeakerState;
     private TextView mTvBackgroundState;
 
     private SoundEffectDialog mSoundEffectDialog;
@@ -164,19 +163,14 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
 
-        mTvSpeakerState = findViewById(R.id.tv_speaker_state);
         mTvBackgroundState = findViewById(R.id.tv_background_music_state);
         mFlInput = findViewById(R.id.fl_input);
         mEtComment = findViewById(R.id.comment_edit_text);
 
 
-        mTvSpeakerState.setText("静音关");
-        mTvSpeakerState.setTag(false);
-
         // 背景音乐当前状态由开发者自行控制。
         mTvBackgroundState.setText("背景音乐");
 
-        mTvSpeakerState.setOnClickListener(this);
         mTvBackgroundState.setOnClickListener(this);
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
         findViewById(R.id.tv_sound_effect).setOnClickListener(this);
@@ -387,23 +381,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         }
     }
 
-    private boolean isSpeakerMute() {
-        return (boolean) mTvSpeakerState.getTag();
-    }
-
-    private void changeSpeakerState() {
-        boolean isSpeakerMute = isSpeakerMute();
-        if (isSpeakerMute) {
-            mTvSpeakerState.setText("静音关");
-            mTvSpeakerState.setTag(false);
-            ZegoChatroom.shared().muteSpeaker(false);
-        } else {
-            mTvSpeakerState.setText("静音开");
-            mTvSpeakerState.setTag(true);
-            ZegoChatroom.shared().muteSpeaker(true);
-        }
-    }
-
     private void showSoundEffectDialog() {
         if (mSoundEffectDialog == null) {
             // 该房间是否支持立体声
@@ -550,9 +527,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                 break;
             case R.id.tv_background_music_state:
                 playBackgroundMusic();
-                break;
-            case R.id.tv_speaker_state:
-                changeSpeakerState();
                 break;
             case R.id.tv_sound_effect:
                 showSoundEffectDialog();

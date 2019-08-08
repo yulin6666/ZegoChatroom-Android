@@ -70,17 +70,6 @@
             android:layout_height="match_parent"
             android:background="@android:color/black" />
 
-        <TextView
-            android:id="@+id/tv_speaker_state"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?android:selectableItemBackground"
-            android:gravity="center"
-            android:textColor="@android:color/holo_blue_bright"
-            android:textSize="16sp"
-            tools:text="静音关" />
-
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
