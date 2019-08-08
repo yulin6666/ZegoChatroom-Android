@@ -95,7 +95,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private MsgAdapter mMsgAdapter;
 
 
-    private TextView mTvMicState;
     private TextView mTvSpeakerState;
     private TextView mTvBackgroundState;
 
@@ -165,15 +164,11 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
 
-        mTvMicState = findViewById(R.id.tv_mic_state);
         mTvSpeakerState = findViewById(R.id.tv_speaker_state);
         mTvBackgroundState = findViewById(R.id.tv_background_music_state);
         mFlInput = findViewById(R.id.fl_input);
         mEtComment = findViewById(R.id.comment_edit_text);
 
-
-        mTvMicState.setText("Mic开");
-        mTvMicState.setTag(false);
 
         mTvSpeakerState.setText("静音关");
         mTvSpeakerState.setTag(false);
@@ -181,7 +176,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         // 背景音乐当前状态由开发者自行控制。
         mTvBackgroundState.setText("背景音乐");
 
-        mTvMicState.setOnClickListener(this);
         mTvSpeakerState.setOnClickListener(this);
         mTvBackgroundState.setOnClickListener(this);
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
@@ -393,23 +387,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         }
     }
 
-    private void changeMicState() {
-        boolean isMicMute = isMicMute();
-        if (isMicMute) {
-            mTvMicState.setText("Mic开");
-            mTvMicState.setTag(false);
-            ZegoChatroom.shared().muteMic(false);
-        } else {
-            mTvMicState.setText("Mic关");
-            mTvMicState.setTag(true);
-            ZegoChatroom.shared().muteMic(true);
-        }
-    }
-
-    private boolean isMicMute() {
-        return (boolean) mTvMicState.getTag();
-    }
-
     private boolean isSpeakerMute() {
         return (boolean) mTvSpeakerState.getTag();
     }
@@ -515,10 +492,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private void showPickedUpTipDialog(int seatIndex) {
         // 获取麦克风当前状态，如果是打开的，则改变其状态
-        final boolean shouldChangeMicState = !isMicMute();
-        if (shouldChangeMicState) {
-            changeMicState();
-        }
+
 
         if (mTipDialog == null) {
             mTipDialog = new TipDialog(this);
@@ -541,10 +515,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                                 super.onCompletion(resultCode);
                                 if (resultCode.isSuccess()) {
                                     mTipDialog.dismiss();
-                                    // 将 麦克风状态回复到执行之前到状态
-                                    if (shouldChangeMicState) {
-                                        changeMicState();
-                                    }
                                 } else {
                                     Toast.makeText(ChatroomActivity.this, "下麦失败，请重试！", Toast.LENGTH_SHORT).show();
                                 }
@@ -553,10 +523,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         break;
                     case R.id.button_ok:
                         mTipDialog.dismiss();
-                        // 将 麦克风状态回复到执行之前到状态
-                        if (shouldChangeMicState) {
-                            changeMicState();
-                        }
                         break;
                 }
             }
@@ -584,9 +550,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                 break;
             case R.id.tv_background_music_state:
                 playBackgroundMusic();
-                break;
-            case R.id.tv_mic_state:
-                changeMicState();
                 break;
             case R.id.tv_speaker_state:
                 changeSpeakerState();
