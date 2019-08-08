@@ -24,7 +24,6 @@ import com.zego.chatroom.ZegoChatroom;
 import com.zego.chatroom.block.ZegoOperationGroupBlock;
 import com.zego.chatroom.callback.ZegoChatroomCMDCallback;
 import com.zego.chatroom.callback.ZegoChatroomCallback;
-import com.zego.chatroom.callback.ZegoChatroomIMCallback;
 import com.zego.chatroom.callback.ZegoSeatUpdateCallback;
 import com.zego.chatroom.config.ZegoChatroomAudioReverbConfig;
 import com.zego.chatroom.config.ZegoChatroomLiveConfig;
@@ -62,7 +61,7 @@ import java.util.Set;
 public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallback, View.OnClickListener,
         SoundEffectViewAdapter.OnSoundEffectAuditionCheckedListener, SoundEffectViewAdapter.OnSoundEffectChangedListener,
         ChatroomSeatsAdapter.OnChatroomSeatClickListener, SeatOperationDialog.OnOperationItemClickListener,
-        PickUpUserSelectDialog.OnPickUserUpListener, ZegoChatroomIMCallback, ZegoChatroomCMDCallback {
+        PickUpUserSelectDialog.OnPickUserUpListener {
 
     private final static String TAG = ChatroomActivity.class.getSimpleName();
 
@@ -94,7 +93,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private SoundEffectDialog mSoundEffectDialog;
     private SeatOperationDialog mSeatOperationDialog;
     private PickUpUserSelectDialog mPickUpUserSelectDialog;
-    private MusicPlayerDialog mMusicPlayerDialog;
     private TipDialog mTipDialog;
 
     private Set<ZegoChatroomUser> mRoomUsers = new HashSet<>();
@@ -121,8 +119,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         // 允许接收用户更新回调
         ZegoChatroom.shared().setEnableUserStateUpdate(true);
         ZegoChatroom.shared().addZegoChatroomCallback(this);
-        ZegoChatroom.shared().addIMCallback(this);
-        ZegoChatroom.shared().addCMDCallback(this);
 
         initData();
         initView();
@@ -152,8 +148,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mPickUpUserSelectDialog.setOnPickUpUserListener(this);
 
         initGridRecyclerView();
-        initMessageRecyclerView();
-
     }
 
     private void initGridRecyclerView() {
@@ -167,14 +161,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         builder.setHorizontalSpan(UiUtils.dp2px(1));
         rvSeats.addItemDecoration(builder.build());
     }
-
-    private void initMessageRecyclerView() {
-        RecyclerView rvMessage = findViewById(R.id.rv_message);
-        rvMessage.setAdapter(mMsgAdapter);
-        mMsgAdapter.setRecyclerView(rvMessage);
-        rvMessage.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-    }
-
 
     private List<ChatroomSeatInfo> createDefaultSeats() {
         ArrayList<ChatroomSeatInfo> seats = new ArrayList<>(DEFAULT_SEATS_COUNT);
@@ -282,19 +268,15 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         ZegoChatroom.shared().leaveRoom();
         ZegoChatroom.shared().removeZegoChatroomCallback(this);
-        ZegoChatroom.shared().removeIMCallback(this);
-        ZegoChatroom.shared().removeCMDCallback(this);
 
         finish();
     }
 
     private void releaseDialog() {
         mTipDialog = null;
-        mMusicPlayerDialog = null;
         if (mSoundEffectDialog != null) {
             mSoundEffectDialog.release();
             mSoundEffectDialog = null;
-
         }
         if (mSeatOperationDialog != null) {
             mSeatOperationDialog.setOnOperationItemClickListener(null);
@@ -720,44 +702,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         });
     }
 
-    // ----------------- implements ZegoChatroomIMCallback ----------------- //
-    @Override
-    public void onRecvRoomMessage(ZegoChatroomMessage[] messageList) {
-        Log.d(TAG, "onRecvRoomMessage messageList.length: " + messageList.length);
-        for (ZegoChatroomMessage message : messageList) {
-            Log.d(TAG, "onRecvRoomMessage message: " + message);
-            mMsgAdapter.addRoomMsg(String.format(Locale.CHINA, USER_MESSAGE_FORMAT, message.mFromUser.userName, message.mContent));
-        }
-    }
-
-    @Override
-    public void onOnlineCountUpdate(int onlineCount) {
-        Log.d(TAG, "onOnlineCountUpdate onlineCount: " + onlineCount);
-    }
-
-    @Override
-    public void onUserJoin(ZegoChatroomUser[] users) {
-        Log.d(TAG, "onUserJoin users.length: " + users.length);
-
-        mRoomUsers.addAll(Arrays.asList(users));
-
-        notifyPickUpUserDataSet();
-    }
-
-    @Override
-    public void onUserLeave(ZegoChatroomUser[] users) {
-        Log.d(TAG, "onUserLeave users.length: " + users.length);
-
-        mRoomUsers.removeAll(Arrays.asList(users));
-
-        notifyPickUpUserDataSet();
-    }
-
-    // ----------------- implements ZegoChatroomCMDCallback ----------------- //
-    @Override
-    public void onRecvCustomCommand(String content, ZegoChatroomUser fromUser) {
-
-    }
 
     // ---------------- 工具方法 ---------------- //
     private boolean isOwner() {

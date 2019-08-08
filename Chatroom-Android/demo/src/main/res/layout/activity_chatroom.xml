@@ -34,19 +34,6 @@
         android:overScrollMode="never"
         android:scrollbars="none" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/ll_feature"
-        android:layout_below="@id/rv_seats" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@id/ll_feature"
-        android:background="@android:color/black" />
-
     <LinearLayout
         android:id="@+id/ll_feature"
         android:layout_width="match_parent"
