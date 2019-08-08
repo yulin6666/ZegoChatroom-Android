@@ -34,7 +34,6 @@ import com.zego.chatroom.constants.ZegoChatroomSeatStatus;
 import com.zego.chatroom.constants.ZegoChatroomUserLiveStatus;
 import com.zego.chatroom.demo.adapter.ChatroomSeatsAdapter;
 import com.zego.chatroom.demo.adapter.MsgAdapter;
-import com.zego.chatroom.demo.adapter.SoundEffectViewAdapter;
 import com.zego.chatroom.demo.bean.ChatroomSeatInfo;
 import com.zego.chatroom.demo.data.ZegoDataCenter;
 import com.zego.chatroom.demo.utils.ChatroomInfoHelper;
@@ -43,7 +42,6 @@ import com.zego.chatroom.demo.view.GridItemDecoration;
 import com.zego.chatroom.demo.view.MusicPlayerDialog;
 import com.zego.chatroom.demo.view.PickUpUserSelectDialog;
 import com.zego.chatroom.demo.view.SeatOperationDialog;
-import com.zego.chatroom.demo.view.SoundEffectDialog;
 import com.zego.chatroom.demo.view.TipDialog;
 import com.zego.chatroom.entity.ZegoChatroomMessage;
 import com.zego.chatroom.entity.ZegoChatroomSeat;
@@ -59,7 +57,6 @@ import java.util.Locale;
 import java.util.Set;
 
 public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallback, View.OnClickListener,
-        SoundEffectViewAdapter.OnSoundEffectAuditionCheckedListener, SoundEffectViewAdapter.OnSoundEffectChangedListener,
         ChatroomSeatsAdapter.OnChatroomSeatClickListener, SeatOperationDialog.OnOperationItemClickListener,
         PickUpUserSelectDialog.OnPickUserUpListener {
 
@@ -90,7 +87,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private ChatroomSeatsAdapter mSeatsAdapter;
     private MsgAdapter mMsgAdapter;
 
-    private SoundEffectDialog mSoundEffectDialog;
     private SeatOperationDialog mSeatOperationDialog;
     private PickUpUserSelectDialog mPickUpUserSelectDialog;
     private TipDialog mTipDialog;
@@ -142,7 +138,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
 
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
-        findViewById(R.id.tv_sound_effect).setOnClickListener(this);
 
         mPickUpUserSelectDialog = new PickUpUserSelectDialog(this);
         mPickUpUserSelectDialog.setOnPickUpUserListener(this);
@@ -274,10 +269,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private void releaseDialog() {
         mTipDialog = null;
-        if (mSoundEffectDialog != null) {
-            mSoundEffectDialog.release();
-            mSoundEffectDialog = null;
-        }
+
         if (mSeatOperationDialog != null) {
             mSeatOperationDialog.setOnOperationItemClickListener(null);
             mSeatOperationDialog = null;
@@ -286,18 +278,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             mPickUpUserSelectDialog.setOnPickUpUserListener(null);
             mPickUpUserSelectDialog = null;
         }
-    }
-
-
-    private void showSoundEffectDialog() {
-        if (mSoundEffectDialog == null) {
-            // 该房间是否支持立体声
-            boolean isStereo = mAudioChannelCount == 2;
-            mSoundEffectDialog = new SoundEffectDialog(this, isStereo);
-            mSoundEffectDialog.setOnSoundEffectAuditionCheckedListener(this);
-            mSoundEffectDialog.setOnSoundEffectChangedListener(this);
-        }
-        mSoundEffectDialog.show();
     }
 
     /**
@@ -380,9 +360,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         switch (v.getId()) {
             case R.id.tv_exit_room:
                 exitRoom();
-                break;
-            case R.id.tv_sound_effect:
-                showSoundEffectDialog();
                 break;
         }
     }
@@ -527,63 +504,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     }
 
-    // --------------- implements SoundEffectViewAdapter.OnSoundEffectChangedListener --------------- //
-
-    /**
-     * 设置相关变声
-     *
-     * @param soundEffectType 音效类型
-     */
-    @Override
-    public void onSoundEffectChanged(int soundEffectType) {
-        switch (soundEffectType) {
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_VOICE_CHANGE_NO:
-                // 变声-无
-                ZegoChatroom.shared().setVoiceChangeValue(0.0f);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_VOICE_CHANGE_LOLI:
-                // 变声-萝莉
-                ZegoChatroom.shared().setVoiceChangeValue(7f);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_VOICE_CHANGE_UNCLE:
-                // 变声-大叔
-                ZegoChatroom.shared().setVoiceChangeValue(-3f);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_STEREO_NO:
-                // 立体声-无
-                ZegoChatroom.shared().setVirtualStereoAngle(90);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_STEREO_LEFT_SIDE:
-                // 立体声-左侧声
-                ZegoChatroom.shared().setVirtualStereoAngle(120);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_STEREO_RIGHT_SIDE:
-                // 立体声-右侧声
-                ZegoChatroom.shared().setVirtualStereoAngle(60);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_MIXED_VOICE_NO:
-                // 混响-无
-                ZegoChatroom.shared().setAudioReverbConfig(null);
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_MIXED_VOICE_LOBBY:
-                //混响-大堂场景
-                ZegoChatroom.shared().setAudioReverbConfig(ZegoChatroomAudioReverbConfig.configWithModeLargeRoom());
-                break;
-            case SoundEffectViewAdapter.SOUND_EFFECT_TYPE_MIXED_VOICE_VALLEY:
-                // 混响-山谷场景
-                ZegoChatroom.shared().setAudioReverbConfig(ZegoChatroomAudioReverbConfig.configWithModeValley());
-                break;
-        }
-    }
-
-    // --------------- implements SoundEffectViewAdapter.OnSoundEffectAuditionCheckedListener --------------- //
-    @Override
-    public void onSoundEffectAuditionChecked(boolean isChecked) {
-        ZegoChatroom.shared().setEnableLoopback(isChecked);
-        if (!isChecked) {
-            Toast.makeText(this, R.string.sound_effect_audition_close_tip, Toast.LENGTH_LONG).show();
-        }
-    }
 
     // --------------- implements ChatroomSeatsAdapter.OnChatroomSeatClickListener --------------- //
     @Override
