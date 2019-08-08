@@ -55,16 +55,6 @@
         android:background="@android:color/white"
         android:orientation="horizontal">
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/black" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/black" />
-
         <TextView
             android:id="@+id/tv_sound_effect"
             android:layout_width="0dp"
@@ -76,41 +66,7 @@
             android:textColor="@android:color/holo_blue_bright"
             android:textSize="16sp" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/black" />
-
-        <TextView
-            android:id="@+id/tv_comment"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?android:selectableItemBackground"
-            android:gravity="center"
-            android:text="@string/comment"
-            android:textColor="@android:color/holo_blue_bright"
-            android:textSize="16sp" />
     </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/fl_input"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <include
-            layout="@layout/layout_send_msg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal" />
-    </FrameLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/black" />
 
     <FrameLayout
         android:id="@+id/fl_loading"

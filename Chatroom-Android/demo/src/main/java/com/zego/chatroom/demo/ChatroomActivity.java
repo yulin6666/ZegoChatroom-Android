@@ -25,7 +25,6 @@ import com.zego.chatroom.block.ZegoOperationGroupBlock;
 import com.zego.chatroom.callback.ZegoChatroomCMDCallback;
 import com.zego.chatroom.callback.ZegoChatroomCallback;
 import com.zego.chatroom.callback.ZegoChatroomIMCallback;
-import com.zego.chatroom.callback.ZegoChatroomSendRoomMessageCallback;
 import com.zego.chatroom.callback.ZegoSeatUpdateCallback;
 import com.zego.chatroom.config.ZegoChatroomAudioReverbConfig;
 import com.zego.chatroom.config.ZegoChatroomLiveConfig;
@@ -40,7 +39,6 @@ import com.zego.chatroom.demo.adapter.SoundEffectViewAdapter;
 import com.zego.chatroom.demo.bean.ChatroomSeatInfo;
 import com.zego.chatroom.demo.data.ZegoDataCenter;
 import com.zego.chatroom.demo.utils.ChatroomInfoHelper;
-import com.zego.chatroom.demo.utils.SystemUtil;
 import com.zego.chatroom.demo.utils.UiUtils;
 import com.zego.chatroom.demo.view.GridItemDecoration;
 import com.zego.chatroom.demo.view.MusicPlayerDialog;
@@ -52,7 +50,6 @@ import com.zego.chatroom.entity.ZegoChatroomMessage;
 import com.zego.chatroom.entity.ZegoChatroomSeat;
 import com.zego.chatroom.entity.ZegoChatroomUser;
 import com.zego.chatroom.manager.entity.ResultCode;
-import com.zego.chatroom.manager.musicplay.ZegoMusicResource;
 import com.zego.chatroom.manager.room.ZegoUserLiveQuality;
 
 import java.util.ArrayList;
@@ -104,8 +101,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
 
     private int screenHeight = 0;
-    private FrameLayout mFlInput;
-    private EditText mEtComment;
 
     // 当前房间支持声道数
     private int mAudioChannelCount;
@@ -136,15 +131,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // 当暂停时，强制隐藏输入框和输入法
-        mFlInput.setVisibility(View.GONE);
-        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(mEtComment.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
-
     private void initData() {
         mSeats = createDefaultSeats();
         mSeatsAdapter = new ChatroomSeatsAdapter();
@@ -158,13 +144,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
 
-        mFlInput = findViewById(R.id.fl_input);
-        mEtComment = findViewById(R.id.comment_edit_text);
 
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
         findViewById(R.id.tv_sound_effect).setOnClickListener(this);
-        findViewById(R.id.tv_comment).setOnClickListener(this);
-        findViewById(R.id.tv_send_msg).setOnClickListener(this);
 
         mPickUpUserSelectDialog = new PickUpUserSelectDialog(this);
         mPickUpUserSelectDialog.setOnPickUpUserListener(this);
@@ -172,40 +154,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         initGridRecyclerView();
         initMessageRecyclerView();
 
-        initInputLayout();
-    }
-
-    /**
-     * 初始化输入框显示layout显示、隐藏逻辑
-     * 主要是监控输入法的显示，然后将输入框显示或者隐藏
-     */
-    private void initInputLayout() {
-        final ViewGroup rootLayout = findViewById(R.id.root_layout);
-        rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                Rect r = new Rect();
-                rootLayout.getWindowVisibleDisplayFrame(r);
-                // 存储r.bottom
-                screenHeight = Math.max(screenHeight, r.bottom);
-                //r.top 是状态栏高度
-                final int softHeight = screenHeight - r.bottom;
-                if (softHeight > 100) {//当输入法高度大于100判定为输入法打开了
-                    mFlInput.postDelayed(new Runnable() {
-                                             @Override
-                                             public void run() {
-                                                 mFlInput.scrollTo(0, softHeight);
-                                             }
-                                         }
-                            , 100);
-                    mFlInput.setVisibility(View.VISIBLE);
-                    mEtComment.requestFocus();
-                } else {//否则判断为输入法隐藏了
-                    mFlInput.scrollTo(0, 0);
-                    mFlInput.setVisibility(View.GONE);
-                }
-            }
-        });
     }
 
     private void initGridRecyclerView() {
@@ -373,35 +321,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     /**
      * @return 是否发送消息成功，只要输入框有内容即输入成功
      */
-    public boolean send() {
-        final String msg = getEditTextContent();
-        if (msg == null) {
-            Toast.makeText(this, "请输入需要发送的内容", Toast.LENGTH_LONG).show();
-            return false;
-        } else {
-            ZegoChatroom.shared().sendRoomMessage(msg, 11, new ZegoChatroomSendRoomMessageCallback() {
-                @Override
-                public void onSendRoomMessage(ResultCode resultCode, ZegoChatroomMessage message) {
-                    if (resultCode.isSuccess()) {
-                        mMsgAdapter.addRoomMsg(String.format(Locale.CHINA, USER_MESSAGE_FORMAT, ZegoDataCenter.ZEGO_USER.userName, message.mContent));
-                    } else {
-                        mMsgAdapter.addRoomMsg("系统:消息发送失败");
-                    }
-                }
-            });
-            return true;
-        }
-    }
-
-    private String getEditTextContent() {
-        Editable msg = mEtComment.getText();
-        if (msg != null && !TextUtils.isEmpty(msg.toString())) {
-            String s = msg.toString();
-            mEtComment.setText("");
-            return s;
-        }
-        return null;
-    }
 
     private void showOperationMenu(ChatroomSeatInfo seatInfo) {
         int position = mSeats.indexOf(seatInfo);
@@ -482,22 +401,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                 break;
             case R.id.tv_sound_effect:
                 showSoundEffectDialog();
-                break;
-            case R.id.tv_comment:
-                // 点击评论按钮，显示输入法
-                mFlInput.setVisibility(View.VISIBLE);
-                mEtComment.requestFocus();
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                        .showSoftInput(mEtComment, InputMethodManager.SHOW_IMPLICIT);
-                break;
-            case R.id.tv_send_msg:
-                if (send()) {
-                    // 隐藏输入法
-                    InputMethodManager im = ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE));
-                    if (im.isActive()) {
-                        im.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
-                    }
-                }
                 break;
         }
     }
