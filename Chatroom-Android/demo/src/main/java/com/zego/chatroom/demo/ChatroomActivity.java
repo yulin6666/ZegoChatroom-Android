@@ -94,9 +94,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private ChatroomSeatsAdapter mSeatsAdapter;
     private MsgAdapter mMsgAdapter;
 
-
-    private TextView mTvBackgroundState;
-
     private SoundEffectDialog mSoundEffectDialog;
     private SeatOperationDialog mSeatOperationDialog;
     private PickUpUserSelectDialog mPickUpUserSelectDialog;
@@ -137,8 +134,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         loginChatroomWithIntent(getIntent());
 
-        // 到这才能获取到房主到信息。。
-        mTvBackgroundState.setVisibility(isOwner() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -163,15 +158,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
 
-        mTvBackgroundState = findViewById(R.id.tv_background_music_state);
         mFlInput = findViewById(R.id.fl_input);
         mEtComment = findViewById(R.id.comment_edit_text);
 
-
-        // 背景音乐当前状态由开发者自行控制。
-        mTvBackgroundState.setText("背景音乐");
-
-        mTvBackgroundState.setOnClickListener(this);
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
         findViewById(R.id.tv_sound_effect).setOnClickListener(this);
         findViewById(R.id.tv_comment).setOnClickListener(this);
@@ -369,17 +358,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         }
     }
 
-    private void playBackgroundMusic() {
-        if (!isOwner()) {
-            Toast.makeText(this, "只有房主才能播放背景音乐", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (getSeatForUser(ZegoDataCenter.ZEGO_USER) == null) {
-            Toast.makeText(this, "上麦成功后才能播放背景音乐", Toast.LENGTH_SHORT).show();
-        } else {
-            showMusicPlayerDialog();
-        }
-    }
 
     private void showSoundEffectDialog() {
         if (mSoundEffectDialog == null) {
@@ -390,29 +368,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             mSoundEffectDialog.setOnSoundEffectChangedListener(this);
         }
         mSoundEffectDialog.show();
-    }
-
-    private void showMusicPlayerDialog() {
-        if (mMusicPlayerDialog == null) {
-            mMusicPlayerDialog = new MusicPlayerDialog(this);
-
-            List<ZegoMusicResource> playList = getPlayList();
-            mMusicPlayerDialog.setPlayList(playList);
-
-            mMusicPlayerDialog.setSoundEffectResource(new ZegoMusicResource(SystemUtil.copyAssetsFile2Phone(this, "laugth.wav"), "大笑"));
-        }
-        mMusicPlayerDialog.show();
-    }
-
-    private List<ZegoMusicResource> getPlayList() {
-        List<ZegoMusicResource> playList = new ArrayList<>(4);
-
-        playList.add(new ZegoMusicResource(SystemUtil.copyAssetsFile2Phone(this, "zhuoniqiu.mp3"), "抓泥鳅"));
-        playList.add(new ZegoMusicResource(SystemUtil.copyAssetsFile2Phone(this, "haikuotiankong.mp3"), "海阔天空"));
-        playList.add(new ZegoMusicResource(SystemUtil.copyAssetsFile2Phone(this, "shishangzhiyoumamahao.mp3"), "世上只有妈妈好"));
-        playList.add(new ZegoMusicResource("http://www.ytmp3.cn/down/59249.mp3", "假如-网络资源"));
-
-        return playList;
     }
 
     /**
@@ -524,9 +479,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         switch (v.getId()) {
             case R.id.tv_exit_room:
                 exitRoom();
-                break;
-            case R.id.tv_background_music_state:
-                playBackgroundMusic();
                 break;
             case R.id.tv_sound_effect:
                 showSoundEffectDialog();
