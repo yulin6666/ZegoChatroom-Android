@@ -1,5 +1,6 @@
 package com.zego.chatroom.demo;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -78,6 +80,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private ZegoChatroomUser mOwner;
 
     private View mFlLoading;
+    private Button mspeakButton;
+    private Button mspeakStopButton;
 
     private List<ChatroomSeatInfo> mSeats = new ArrayList<>();
 
@@ -130,7 +134,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private void initView() {
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
-
+        mspeakButton = findViewById(R.id.speakButton);
+        mspeakStopButton = findViewById(R.id.speakStopButton);
 
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
 
@@ -179,6 +184,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         }
     }
 
+    @SuppressLint("ResourceAsColor")
     private void createChatroomWithIntent(Intent intent) {
         String roomID = intent.getStringExtra(EXTRA_KEY_ROOM_ID);
         String roomName = intent.getStringExtra(EXTRA_KEY_ROOM_NAME);
@@ -192,6 +198,12 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setLatencyMode(latencyMode);
 
         ZegoChatroom.shared().createChatroom(roomID, roomName, createDefaultZegoSeats(), config);
+
+        mspeakButton.setBackgroundColor(Color.GRAY);
+        mspeakButton.setEnabled(false);
+
+        mspeakStopButton.setBackgroundColor(Color.RED);
+        mspeakStopButton.setEnabled(true);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
@@ -219,6 +231,12 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setLatencyMode(latencyMode);
 
         ZegoChatroom.shared().joinChatroom(roomID, config);
+
+        mspeakStopButton.setBackgroundColor(Color.GRAY);
+        mspeakStopButton.setEnabled(false);
+
+        mspeakButton.setBackgroundColor(Color.RED);
+        mspeakButton.setEnabled(true);
     }
 
     private void exitRoom() {
