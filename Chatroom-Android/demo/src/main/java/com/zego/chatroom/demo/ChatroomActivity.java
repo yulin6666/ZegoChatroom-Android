@@ -64,9 +64,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private final static int DEFAULT_SEATS_COUNT = 9;
 
-    private final static String USER_MESSAGE_FORMAT = "%1$s:%2$s";
-
-
     /**
      * Intent extra info
      */
@@ -85,7 +82,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private List<ChatroomSeatInfo> mSeats = new ArrayList<>();
 
     private ChatroomSeatsAdapter mSeatsAdapter;
-    private MsgAdapter mMsgAdapter;
 
     private SeatOperationDialog mSeatOperationDialog;
     private PickUpUserSelectDialog mPickUpUserSelectDialog;
@@ -129,7 +125,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mSeatsAdapter.setSeats(mSeats);
         mSeatsAdapter.setOnChatroomSeatClickListener(this);
 
-        mMsgAdapter = new MsgAdapter();
     }
 
     private void initView() {
@@ -401,7 +396,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     public void onLoginEventOccur(int event, int status, ResultCode errorCode) {
         Log.d(TAG, "onLoginEventOccur event: " + event + " status: " + status + " errorCode: " + errorCode);
 
-        mMsgAdapter.addRoomMsg("系统:onLoginEventOccur  event: " + ZegoChatroomLoginEvent.getLoginEventString(event) + " status: " + ZegoChatroomLoginStatus.getLoginStatusString(status) + " errorCode: " + errorCode);
+        //mMsgAdapter.addRoomMsg("系统:onLoginEventOccur  event: " + ZegoChatroomLoginEvent.getLoginEventString(event) + " status: " + ZegoChatroomLoginStatus.getLoginStatusString(status) + " errorCode: " + errorCode);
 
         if (event == ZegoChatroomLoginEvent.LOGIN_SUCCESS) {
             mFlLoading.setVisibility(View.GONE);
@@ -412,7 +407,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     public void onAutoReconnectStop(int stopReason) {
         Log.d(TAG, "onAutoReconnectStop stopReason: " + stopReason);
 
-        mMsgAdapter.addRoomMsg("系统:onAutoReconnectStop  stopReason: " + ZegoChatroomReconnectStopReason.getReconnectStopReasonString(stopReason));
+        //mMsgAdapter.addRoomMsg("系统:onAutoReconnectStop  stopReason: " + ZegoChatroomReconnectStopReason.getReconnectStopReasonString(stopReason));
         mFlLoading.setVisibility(View.GONE);
     }
 
@@ -437,28 +432,28 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     @Override
     public void onLiveExtraInfoUpdate(ZegoChatroomUser user, String extraInfo) {
         Log.d(TAG, "onLiveExtraInfoUpdate user: " + user + " extraInfo: " + extraInfo);
-        mMsgAdapter.addRoomMsg("extraInfoUpdate user: " + user.userName + " extraInfo: " + extraInfo);
+        //mMsgAdapter.addRoomMsg("extraInfoUpdate user: " + user.userName + " extraInfo: " + extraInfo);
     }
 
     @Override
     public void onUserTakeSeat(ZegoChatroomUser user, int index) {
         Log.d(TAG, "onUserTakeSeat user: " + user + " index: " + index);
 
-        mMsgAdapter.addRoomMsg("user: " + user.userName + "，上麦，位置:" + index);
+        //mMsgAdapter.addRoomMsg("user: " + user.userName + "，上麦，位置:" + index);
     }
 
     @Override
     public void onUserLeaveSeat(ZegoChatroomUser user, int fromIndex) {
         Log.d(TAG, "onUserLeaveSeat user: " + user + " fromIndex: " + fromIndex);
 
-        mMsgAdapter.addRoomMsg("user: " + user.userName + "，下麦，位置:" + fromIndex);
+        //mMsgAdapter.addRoomMsg("user: " + user.userName + "，下麦，位置:" + fromIndex);
     }
 
     @Override
     public void onUserChangeSeat(ZegoChatroomUser user, int fromIndex, int toIndex) {
         Log.d(TAG, "onUserChangeSeat user: " + user + " fromIndex: " + fromIndex + " toIndex: " + toIndex);
 
-        mMsgAdapter.addRoomMsg("user: " + user.userName + "，换麦，从:" + fromIndex + "->" + toIndex);
+       // mMsgAdapter.addRoomMsg("user: " + user.userName + "，换麦，从:" + fromIndex + "->" + toIndex);
     }
 
     @Override
@@ -466,7 +461,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         Log.d(TAG, "onUserPickUp fromUser: " + fromUser + " toUser: " + toUser + " index: " + index);
 
         String fromUserName = fromUser == null ? null : fromUser.userName;
-        mMsgAdapter.addRoomMsg("user: " + fromUserName + "，将user: " + toUser.userName + "，抱上麦，位置:" + index);
+       // mMsgAdapter.addRoomMsg("user: " + fromUserName + "，将user: " + toUser.userName + "，抱上麦，位置:" + index);
 
         if (ZegoDataCenter.ZEGO_USER.equals(toUser)) {
             showPickedUpTipDialog(index);
@@ -480,7 +475,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             ZegoChatroom.shared().getMusicPlayer().stop();
         }
         String fromUserName = fromUser == null ? null : fromUser.userName;
-        mMsgAdapter.addRoomMsg("user: " + fromUserName + "，将user: " + toUser.userName + "，抱下麦，位置:" + fromIndex);
+       // mMsgAdapter.addRoomMsg("user: " + fromUserName + "，将user: " + toUser.userName + "，抱下麦，位置:" + fromIndex);
     }
 
     @Override
@@ -488,7 +483,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         Log.d(TAG, "onSeatMute fromUser: " + fromUser + " isMute: " + isMute + " index: " + index);
 
         String muteOperation = isMute ? "禁" : "解禁";
-        mMsgAdapter.addRoomMsg("user: " + fromUser.userName + "，" + muteOperation + "麦位，位置:" + index);
+       // mMsgAdapter.addRoomMsg("user: " + fromUser.userName + "，" + muteOperation + "麦位，位置:" + index);
     }
 
     @Override
@@ -496,7 +491,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         Log.d(TAG, "onSeatClose fromUser: " + fromUser + " isMute: " + isClose + " index: " + index);
 
         String muteOperation = isClose ? "封" : "解封";
-        mMsgAdapter.addRoomMsg("user: " + fromUser.userName + "，" + muteOperation + "麦位，位置:" + index);
+       // mMsgAdapter.addRoomMsg("user: " + fromUser.userName + "，" + muteOperation + "麦位，位置:" + index);
     }
 
     @Override
