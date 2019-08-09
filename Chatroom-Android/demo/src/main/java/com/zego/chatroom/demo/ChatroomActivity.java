@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.View.OnClickListener;
 
 import com.zego.chatroom.ZegoChatroom;
 import com.zego.chatroom.block.ZegoOperationGroupBlock;
@@ -134,8 +135,36 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private void initView() {
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
+
+        //说话
         mspeakButton = findViewById(R.id.speakButton);
+        mspeakButton.setOnClickListener(new OnClickListener(){
+            public void onClick(View v) {
+
+            };
+        });
+
+        //停止说话
         mspeakStopButton = findViewById(R.id.speakStopButton);
+        mspeakStopButton.setOnClickListener(new OnClickListener(){
+            public void onClick(View v) {
+                boolean shouldLeaveSeat = (getSeatForUser(ZegoDataCenter.ZEGO_USER) != null);
+                if (shouldLeaveSeat) {
+                    ZegoChatroom.shared().leaveSeat(new ZegoSeatUpdateCallbackWrapper() {
+                        @Override
+                        public void onCompletion(ResultCode resultCode) {
+                            super.onCompletion(resultCode);
+                            boolean isSuccess = resultCode.isSuccess();
+                            if (!isSuccess) {
+                                Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(ChatroomActivity.this, "下麦成功", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            };
+        });
 
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
 
