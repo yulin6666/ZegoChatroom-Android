@@ -503,7 +503,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     // --------------- implements ChatroomSeatsAdapter.OnChatroomSeatClickListener --------------- //
     @Override
     public void onChatroomSeatClick(ChatroomSeatInfo chatroomSeatInfo) {
-        showOperationMenu(chatroomSeatInfo);
+        //showOperationMenu(chatroomSeatInfo);
     }
 
     // --------------- implements SeatOperationDialog.OnOperationItemClickListener --------------- //

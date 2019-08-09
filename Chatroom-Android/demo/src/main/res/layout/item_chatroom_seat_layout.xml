@@ -17,39 +17,4 @@
         android:textSize="16sp"
         tools:text="当前用户：是否达到法定分" />
 
-    <TextView
-        android:id="@+id/tv_seat_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        tools:text="占，禁" />
-
-    <TextView
-        android:id="@+id/tv_live_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        tools:text="未连接" />
-
-    <TextView
-        android:id="@+id/tv_delay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        tools:text="delay" />
-
-    <TextView
-        android:id="@+id/tv_sound_level"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        tools:text="soundLevel" />
 </com.zego.chatroom.demo.view.WH11LinearLayout>

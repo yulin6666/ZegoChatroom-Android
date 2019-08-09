@@ -45,30 +45,32 @@ public class ZegoDataCenter {
      * 获取保存的UserName，如果没有，则新建
      */
     private static String getUserID() {
-        SharedPreferences sp = BaseApplication.sApplication.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-        String userID = sp.getString(SP_KEY_USER_ID, "");
-        if (TextUtils.isEmpty(userID)) {
-            userID = UUID.randomUUID().toString();
-            // 保存用户名
-            sp.edit().putString(SP_KEY_USER_ID, userID).apply();
-        }
-        return userID;
+//        SharedPreferences sp = BaseApplication.sApplication.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+//        String userID = sp.getString(SP_KEY_USER_ID, "");
+//        if (TextUtils.isEmpty(userID)) {
+//            userID = UUID.randomUUID().toString();
+//            // 保存用户名
+//            sp.edit().putString(SP_KEY_USER_ID, userID).apply();
+//        }
+//        return userID;
+        return "张三";
     }
 
     /**
      * 获取保存的UserName，如果没有，则新建
      */
     private static String getUserName() {
-        SharedPreferences sp = BaseApplication.sApplication.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-        String userName = sp.getString(SP_KEY_USER_NAME, "");
-        if (TextUtils.isEmpty(userName)) {
-            String monthAndDay = new SimpleDateFormat("MMdd", Locale.CHINA).format(new Date());
-            // 以设备名称 + 时间日期 + 一位随机数  作为用户名
-            userName = Build.MODEL + monthAndDay + new Random().nextInt(10);
-            // 保存用户名
-            sp.edit().putString(SP_KEY_USER_NAME, userName).apply();
-        }
-        return userName;
+//        SharedPreferences sp = BaseApplication.sApplication.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+//        String userName = sp.getString(SP_KEY_USER_NAME, "");
+//        if (TextUtils.isEmpty(userName)) {
+//            String monthAndDay = new SimpleDateFormat("MMdd", Locale.CHINA).format(new Date());
+//            // 以设备名称 + 时间日期 + 一位随机数  作为用户名
+//            userName = Build.MODEL + monthAndDay + new Random().nextInt(10);
+//            // 保存用户名
+//            sp.edit().putString(SP_KEY_USER_NAME, userName).apply();
+//        }
+//        return userName;
+        return "张三";
     }
 
     public static String getRoomListUrl() {
