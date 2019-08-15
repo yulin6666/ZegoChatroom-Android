@@ -97,6 +97,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private int screenHeight = 0;
 
+    private int mAvailableSeat = 0;
+
     // 当前房间支持声道数
     private int mAudioChannelCount;
 
@@ -140,7 +142,17 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mspeakButton = findViewById(R.id.speakButton);
         mspeakButton.setOnClickListener(new OnClickListener(){
             public void onClick(View v) {
-
+                ZegoChatroom.shared().takeSeatAtIndex(mAvailableSeat, new ZegoSeatUpdateCallbackWrapper() {
+                    @Override
+                    public void onCompletion(ResultCode resultCode) {
+                        super.onCompletion(resultCode);
+                        if (!resultCode.isSuccess()) {
+                            Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             };
         });
 
@@ -421,11 +433,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         for (int i = 0; i < zegoChatroomSeats.size(); i++) {
             ChatroomSeatInfo seatInfo = mSeats.get(i);
             ZegoChatroomSeat zegoChatroomSeat = zegoChatroomSeats.get(i);
-            if (zegoChatroomSeat.mStatus == ZegoChatroomSeatStatus.Used) {
-                if (zegoChatroomSeat.mZegoUser.equals(seatInfo.mUser)) {
-                    seatInfo.isMute = zegoChatroomSeat.isMute;
-                    continue;
-                }
+            if (zegoChatroomSeat.mStatus != ZegoChatroomSeatStatus.Used) {
+                mAvailableSeat = i;
+                break;
             }
             seatInfo.mStatus = zegoChatroomSeat.mStatus;
             seatInfo.mUser = zegoChatroomSeat.mZegoUser;
