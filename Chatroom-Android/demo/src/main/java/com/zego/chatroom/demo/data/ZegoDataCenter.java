@@ -53,7 +53,7 @@ public class ZegoDataCenter {
 //            sp.edit().putString(SP_KEY_USER_ID, userID).apply();
 //        }
 //        return userID;
-        return "张三";
+        return "李四";
     }
 
     /**
@@ -70,7 +70,7 @@ public class ZegoDataCenter {
 //            sp.edit().putString(SP_KEY_USER_NAME, userName).apply();
 //        }
 //        return userName;
-        return "张三";
+        return "李四";
     }
 
     public static String getRoomListUrl() {

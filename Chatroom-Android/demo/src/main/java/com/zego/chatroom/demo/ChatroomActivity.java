@@ -150,6 +150,10 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                             Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
+                            mspeakButton.setBackgroundColor(Color.GRAY);
+                            mspeakButton.setEnabled(false);
+                            mspeakStopButton.setBackgroundColor(Color.RED);
+                            mspeakStopButton.setEnabled(true);
                         }
                     }
                 });
@@ -171,6 +175,10 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                                 Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
                             } else {
                                 Toast.makeText(ChatroomActivity.this, "下麦成功", Toast.LENGTH_SHORT).show();
+                                mspeakButton.setBackgroundColor(Color.RED);
+                                mspeakButton.setEnabled(true);
+                                mspeakStopButton.setBackgroundColor(Color.GRAY);
+                                mspeakStopButton.setEnabled(false);
                             }
                         }
                     });
@@ -435,6 +443,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             ZegoChatroomSeat zegoChatroomSeat = zegoChatroomSeats.get(i);
             if (zegoChatroomSeat.mStatus != ZegoChatroomSeatStatus.Used) {
                 mAvailableSeat = i;
+                Log.i("seat","更新可用的seat:"+mAvailableSeat);
                 break;
             }
             seatInfo.mStatus = zegoChatroomSeat.mStatus;
