@@ -39,6 +39,16 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:layout_below="@+id/ll_toolbar"
+        android:focusableInTouchMode="true"
+        android:text="测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下" />
+
     <Button
         android:id="@+id/speakButton"
         android:layout_width="50dp"
