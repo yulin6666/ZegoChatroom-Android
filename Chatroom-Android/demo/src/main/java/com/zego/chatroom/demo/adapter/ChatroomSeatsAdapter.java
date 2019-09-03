@@ -38,7 +38,7 @@ public class ChatroomSeatsAdapter extends RecyclerView.Adapter<ChatroomSeatsAdap
         ChatroomSeatInfo seat = mSeats.get(position);
 
         if (seat.mStatus == ZegoChatroomSeatStatus.Empty || seat.mStatus == ZegoChatroomSeatStatus.Closed) {
-            viewHolder.mTvUserName.setText("none");
+            viewHolder.mTvUserName.setText("");
         } else if (seat.mStatus == ZegoChatroomSeatStatus.Used) {
             viewHolder.mTvUserName.setText(seat.mUser.userName);
         }

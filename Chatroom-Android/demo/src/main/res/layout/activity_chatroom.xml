@@ -25,16 +25,6 @@
             android:textSize="18sp" />
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_seats"
-        android:layout_width="match_parent"
-        android:layout_height="302dp"
-        android:layout_below="@id/ll_toolbar"
-        android:layout_marginTop="3dp"
-        android:background="@android:color/white"
-        android:overScrollMode="never"
-        android:scrollbars="none" />
-
     <FrameLayout
         android:id="@+id/fl_loading"
         android:layout_width="match_parent"
@@ -51,22 +41,22 @@
 
     <Button
         android:id="@+id/speakButton"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_below="@id/rv_seats"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="500dp"
         android:background="#ff0000"
+        android:radius="30dp"
         android:text="说话" />
 
     <Button
         android:id="@+id/speakStopButton"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_below="@id/rv_seats"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="500dp"
         android:layout_marginRight="30dp"
         android:background="@android:color/darker_gray"
+        android:radius="30dp"
         android:text="停止" />
 </RelativeLayout>

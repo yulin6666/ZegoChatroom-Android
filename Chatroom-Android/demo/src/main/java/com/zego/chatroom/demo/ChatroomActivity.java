@@ -191,20 +191,20 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mPickUpUserSelectDialog = new PickUpUserSelectDialog(this);
         mPickUpUserSelectDialog.setOnPickUpUserListener(this);
 
-        initGridRecyclerView();
+       // initGridRecyclerView();
     }
 
-    private void initGridRecyclerView() {
-        RecyclerView rvSeats = findViewById(R.id.rv_seats);
-        rvSeats.setAdapter(mSeatsAdapter);
-        rvSeats.setLayoutManager(new GridLayoutManager(this, 3));
-
-        GridItemDecoration.Builder builder = new GridItemDecoration.Builder(this);
-        builder.setColor(Color.BLACK);
-        builder.setVerticalSpan(UiUtils.dp2px(1));
-        builder.setHorizontalSpan(UiUtils.dp2px(1));
-        rvSeats.addItemDecoration(builder.build());
-    }
+//    private void initGridRecyclerView() {
+//        RecyclerView rvSeats = findViewById(R.id.rv_seats);
+//        rvSeats.setAdapter(mSeatsAdapter);
+//        rvSeats.setLayoutManager(new GridLayoutManager(this, 3));
+//
+//        GridItemDecoration.Builder builder = new GridItemDecoration.Builder(this);
+//        builder.setColor(Color.BLACK);
+//        builder.setVerticalSpan(UiUtils.dp2px(1));
+//        builder.setHorizontalSpan(UiUtils.dp2px(1));
+//        rvSeats.addItemDecoration(builder.build());
+//    }
 
     private List<ChatroomSeatInfo> createDefaultSeats() {
         ArrayList<ChatroomSeatInfo> seats = new ArrayList<>(DEFAULT_SEATS_COUNT);
@@ -248,20 +248,20 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         ZegoChatroom.shared().createChatroom(roomID, roomName, createDefaultZegoSeats(), config);
 
-        mspeakButton.setBackgroundColor(Color.GRAY);
-        mspeakButton.setEnabled(false);
+        mspeakStopButton.setBackgroundColor(Color.GRAY);
+        mspeakStopButton.setEnabled(false);
 
-        mspeakStopButton.setBackgroundColor(Color.RED);
-        mspeakStopButton.setEnabled(true);
+        mspeakButton.setBackgroundColor(Color.RED);
+        mspeakButton.setEnabled(true);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
         ArrayList<ZegoChatroomSeat> seats = new ArrayList<>(DEFAULT_SEATS_COUNT);
-        // 默认房主上麦
-        ZegoChatroomSeat ownerSeat = ZegoChatroomSeat.seatForUser(ZegoDataCenter.ZEGO_USER);
-        seats.add(ownerSeat);
+        // 默认房主也不上麦
+//        ZegoChatroomSeat ownerSeat = ZegoChatroomSeat.seatForUser(ZegoDataCenter.ZEGO_USER);
+//        seats.add(ownerSeat);
 
-        for (int i = 1; i < DEFAULT_SEATS_COUNT; i++) {
+        for (int i = 0; i < DEFAULT_SEATS_COUNT; i++) {
             seats.add(ZegoChatroomSeat.emptySeat());
         }
 
