@@ -108,7 +108,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         initView();
 
         //获得access_token信息
-        sendHTTPPostData();
+        getAccessToken();
 
     }
 
@@ -142,7 +142,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         return encodedText;
     }
 
-    private void sendHTTPPostData(){
+    private void getAccessToken(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -298,7 +298,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
     private void createRoom() {
 
-        String roomID = ChatroomInfoHelper.getRoomID();
+        String roomID = mCreateRoomDialog.mEtRoomName.getText().toString();
         String roomName = mCreateRoomDialog.mEtRoomName.getText().toString();
         String ownerID = ZegoDataCenter.ZEGO_USER.userID;
         String ownerName = ZegoDataCenter.ZEGO_USER.userName;
