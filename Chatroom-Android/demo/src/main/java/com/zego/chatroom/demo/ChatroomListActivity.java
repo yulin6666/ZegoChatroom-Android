@@ -76,8 +76,6 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     final static String EXTRA_KEY_USERNAME = "user_name";
 
 
-    private String mAccessToken;
-
     private Handler mUiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -107,8 +105,6 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
     private ChatroomListAdapter mChatroomListAdapter;
 
-    private String access_token;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,124 +117,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         mAppName.setText("用户名:"+mUserName);
 
         ZegoDataCenter.ZEGO_USER.userName = mUserName;
-
-        //获得access_token信息
-        getAccessToken();
-
-    }
-
-    private String getToken(){
-        long current_time = System.currentTimeMillis(); //获取当前unix时间戳
-        long expired_time = current_time+7200; //过期unix时间戳，单位：秒
-
-        String appid = "3939196392";
-        String serverSecret ="c9f23f966d923d3e28fe27ad1fe6100f";
-        String nonce = "c9f23f966f923d4e28fe27ad1fe6100f";
-
-        // 待加密信息
-        String originString = appid + serverSecret + nonce + Long.toString(expired_time);
-        String hashString = getMD5(originString);
-
-        //定义一个tokeninfo json
-        LinkedHashMap  hashMap = new LinkedHashMap();
-        hashMap.put("ver",1);
-        hashMap.put("hash",hashString);
-        hashMap.put("nonce",nonce);
-        hashMap.put("expired",expired_time);
-        String  tokeninfo= JSON.toJSONString(hashMap);
-        final Base64.Encoder encoder = Base64.getEncoder();   //加密
-        String encodedText = "";
-        try {
-            final byte[] textByte = tokeninfo.getBytes("UTF-8");
-            encodedText = encoder.encodeToString(textByte);
-        }catch (UnsupportedEncodingException e) {
-        };
-
-        return encodedText;
-    }
-
-    private void getAccessToken(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String urlpath = "https://test2-liveroom-api.zego.im/cgi/token";
-                JSONObject obj = new JSONObject();
-                obj.put("version", 1);
-                obj.put("seq", 1);
-                obj.put("app_id", 3939196392l);
-                obj.put("biz_type", 0);
-                obj.put("token",getToken());
-                HttpURLConnection connection = null;
-                try {
-                    URL url=new URL(urlpath);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoOutput(true);
-                    connection.setDoInput(true);
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Accept", "application/json");
-                    OutputStreamWriter streamWriter = new OutputStreamWriter(connection.getOutputStream());
-                    streamWriter.write(obj.toString());
-                    streamWriter.flush();
-                    StringBuilder stringBuilder = new StringBuilder();
-                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK){
-                        InputStreamReader streamReader = new InputStreamReader(connection.getInputStream());
-                        BufferedReader bufferedReader = new BufferedReader(streamReader);
-                        String response = null;
-                        while ((response = bufferedReader.readLine()) != null) {
-                            stringBuilder.append(response);
-                        }
-                        bufferedReader.close();
-
-                        String result = stringBuilder.toString();
-                        JSONObject rep = JSONObject.parseObject(result);
-                        JSONObject data = rep.getJSONObject("data");
-                        mAccessToken = data.getString("access_token");
-                        Log.i(TAG,"accessToken:"+mAccessToken);
-                    } else {
-                        Log.e(TAG, connection.getResponseMessage());
-                    }
-                } catch (Exception exception){
-                    Log.e(TAG, exception.toString());
-                } finally {
-                    if (connection != null){
-                        connection.disconnect();
-                    }
-                }
-            }
-        }).start();
-    };
-
-    //生成MD5
-    public static String getMD5(String message) {
-        String md5 = "";
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");  // 创建一个md5算法对象
-            byte[] messageByte = message.getBytes("UTF-8");
-            byte[] md5Byte = md.digest(messageByte);              // 获得MD5字节数组,16*8=128位
-            md5 = bytesToHex(md5Byte);                            // 转换为16进制字符串
-        } catch (Exception e) {
-            System.out.println("erro md5 creat!!!!");
-            e.printStackTrace();
-        }
-        return md5;
-    }
-
-    // 二进制转十六进制
-    public static String bytesToHex(byte[] bytes) {
-        StringBuffer hexStr = new StringBuffer();
-        int num;
-        for (int i = 0; i < bytes.length; i++) {
-            num = bytes[i];
-            if(num < 0) {
-                num += 256;
-            }
-            if(num < 16){
-                hexStr.append("0");
-            }
-            hexStr.append(Integer.toHexString(num));
-        }
-        return hexStr.toString();
+        ZegoDataCenter.ZEGO_USER.userID = mUserName;
     }
 
 
