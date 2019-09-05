@@ -1044,7 +1044,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         List<userInfo> userListValue = JSON.parseArray(userArray.toJSONString(), userInfo.class);
                         List<String> userList = new ArrayList<>();
                         for (userInfo user : userListValue) {
-                            userList.add(user.user_account);
+                            if(!user.user_account.equals(ZegoDataCenter.ZEGO_USER.userName))
+                                userList.add(user.user_account);
                         }
                         Map<String,List<String>> roomMap  = new HashMap<>();
                         roomMap.put(roomid,userList);
