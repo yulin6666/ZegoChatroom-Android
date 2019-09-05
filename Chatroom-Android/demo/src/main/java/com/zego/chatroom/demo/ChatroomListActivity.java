@@ -329,9 +329,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                 List<ChatroomInfo> roomListValue = JSON.parseArray(jsonArray.toJSONString(), ChatroomInfo.class);
                 List<ChatroomInfo> chatroomList = new ArrayList<>();
                 for (ChatroomInfo room : roomListValue) {
-                    if (room.room_id.startsWith(ChatroomInfoHelper.CHATROOM_PREFIX)) {
                         chatroomList.add(room);
-                    }
                 }
                 mChatroomListAdapter.setChatrooms(chatroomList);
                 if (chatroomList.size() == 0) {

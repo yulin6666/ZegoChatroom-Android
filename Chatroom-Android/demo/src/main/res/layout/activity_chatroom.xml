@@ -39,15 +39,17 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:focusable="true"
+    <com.zego.chatroom.demo.AutoScrollTextView
+        android:id="@+id/boardCastView"
+        android:layout_height="40dp"
+        android:layout_width="fill_parent"
+        android:text="测试一下"
+        android:textColor="#000"
+        android:inputType="text"
         android:layout_below="@+id/ll_toolbar"
-        android:focusableInTouchMode="true"
-        android:text="测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下" />
+        android:textSize="40px">
+
+    </com.zego.chatroom.demo.AutoScrollTextView>
 
     <Button
         android:id="@+id/speakButton"

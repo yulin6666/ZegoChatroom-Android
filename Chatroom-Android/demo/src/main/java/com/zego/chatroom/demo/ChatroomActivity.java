@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,7 +27,12 @@ import android.widget.Toast;
 import android.view.View.OnClickListener;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.zego.chatroom.ZegoChatroom;
 import com.zego.chatroom.block.ZegoOperationGroupBlock;
 import com.zego.chatroom.callback.ZegoChatroomCMDCallback;
@@ -39,6 +47,7 @@ import com.zego.chatroom.constants.ZegoChatroomSeatStatus;
 import com.zego.chatroom.constants.ZegoChatroomUserLiveStatus;
 import com.zego.chatroom.demo.adapter.ChatroomSeatsAdapter;
 import com.zego.chatroom.demo.adapter.MsgAdapter;
+import com.zego.chatroom.demo.bean.ChatroomInfo;
 import com.zego.chatroom.demo.bean.ChatroomSeatInfo;
 import com.zego.chatroom.demo.data.ZegoDataCenter;
 import com.zego.chatroom.demo.utils.ChatroomInfoHelper;
@@ -52,6 +61,7 @@ import com.zego.chatroom.entity.ZegoChatroomMessage;
 import com.zego.chatroom.entity.ZegoChatroomSeat;
 import com.zego.chatroom.entity.ZegoChatroomUser;
 import com.zego.chatroom.manager.entity.ResultCode;
+import com.zego.chatroom.manager.log.ZLog;
 import com.zego.chatroom.manager.room.ZegoUserLiveQuality;
 
 import java.io.BufferedReader;
@@ -64,10 +74,12 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallback,ZegoChatroomCMDCallback, View.OnClickListener,
@@ -88,6 +100,13 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     final static String EXTRA_KEY_AUDIO_BITRATE = "audio_bitrate";
     final static String EXTRA_KEY_AUDIO_CHANNEL_COUNT = "audio_channel_count";
     final static String EXTRA_KEY_LATENCY_MODE = "latency_mode";
+
+    private final static String BODY_KEY = "body";
+    private final static String REQUEST_KEY = "req";
+    private final static String REQUEST_CHATROOM_LIST = "room_list";
+    private final static String BODY_ERROR = "error";
+    private final static String RESPONCE_KEY_DATA = "data";
+
 
     private ZegoChatroomUser mOwner;
 
@@ -115,14 +134,38 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private String mAccessToken;
 
+    private String mMessage;
+
+    private  AutoScrollTextView mBoradCastView;
+
     // 是否正在离开房间
     private boolean isLeavingRoom = false;
+
+    private Handler mUiHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Map<String, String> map = (Map<String, String>) msg.obj;
+                    httpReturn(map.get(BODY_KEY), map.get(REQUEST_KEY));
+                    break;
+                case 1:
+                    Map<String,List<String>> roomMap = (Map<String,List<String>>)msg.obj;
+                    for (Map.Entry<String,List<String>> entry : roomMap.entrySet()) {
+                        sendMessageToRoom(" https://test2-liveroom-api.zego.im/cgi/sendmsg", entry.getKey(),entry.getValue(),mMessage);
+                    };
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatroom);
 
+        mBoradCastView =  (AutoScrollTextView)findViewById(R.id.boardCastView);
+        mBoradCastView.init(getWindowManager());
+        mBoradCastView.startScroll();
         // 将房间配置设置成默认状态：Mic开，静音关
         ZegoChatroom.shared().muteSpeaker(false);
         ZegoChatroom.shared().muteMic(false);
@@ -140,6 +183,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         //获得access_token信息
         getAccessToken();
+
+
 
     }
 
@@ -270,6 +315,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         mspeakButton.setBackgroundColor(Color.RED);
         mspeakButton.setEnabled(true);
+
+        String msg = "创建房间:" +roomID;
+        sendMessageToAllPeople(msg);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
@@ -867,6 +915,197 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     @Override
     public void onRecvCustomCommand(String s, ZegoChatroomUser zegoChatroomUser) {
-        Toast.makeText(ChatroomActivity.this, "收到消息:"+s, Toast.LENGTH_SHORT).show();
+        final String msg = "收到来自"+zegoChatroomUser.userID+"的消息:("+s+")";
+        Log.i("test",msg);
+        mBoradCastView.post(new Runnable() {
+            @Override public void run() {
+                mBoradCastView.setText(msg);
+                mBoradCastView.init(getWindowManager());
+                mBoradCastView.startScroll();
+                //还可以更新其他的控件
+            }
+        });
+    }
+
+    void sendMessageToAllPeople(String message){
+        String url = String.format(Locale.ENGLISH, ZegoDataCenter.getRoomListUrl(), ZegoDataCenter.APP_ID, ZegoDataCenter.APP_ID);
+        mMessage = message;
+        httpUrl(url, "room_list");
+    }
+
+    protected void httpUrl(final String url, final String req) {
+        StringRequest request = new StringRequest(url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String body) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(BODY_KEY, body);
+                        map.put(REQUEST_KEY, req);
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(0, map));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                ZLog.d(TAG, "onErrorResponse error: " + error.getMessage());
+                Map<String, String> map = new HashMap<>();
+                map.put(BODY_KEY, BODY_ERROR);
+                map.put(REQUEST_KEY, req);
+                mUiHandler.sendMessage(mUiHandler.obtainMessage(0, map));
+            }
+        });
+
+        request.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 5000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 0;
+            }
+
+            @Override
+            public void retry(VolleyError error) {
+
+            }
+        });
+        getRequestQueue().add(request);
+    }
+
+    private void httpReturn(String body, String req) {
+        ZLog.d(TAG, "httpReturn body: " + body + " req: " + req);
+        if (body != null && !BODY_ERROR.equals(body) && REQUEST_CHATROOM_LIST.equals(req)) {
+            try {
+                JSONArray jsonArray = JSON.parseObject(body).getJSONObject(RESPONCE_KEY_DATA).getJSONArray(REQUEST_CHATROOM_LIST);
+                List<ChatroomInfo> roomListValue = JSON.parseArray(jsonArray.toJSONString(), ChatroomInfo.class);
+                List<ChatroomInfo> chatroomList = new ArrayList<>();
+                for (ChatroomInfo room : roomListValue) {
+                    httpGetRoomUser("https://test2-liveroom-api.zego.im/cgi/userlist",room.room_id);
+                }
+
+            } catch (Exception e) {
+                ZLog.w(TAG, "-->:: httpReturn error e: " + e.getMessage());
+            }
+        } else {
+        }
+    }
+
+    private void httpGetRoomUser(final String urlpath,final String roomId){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject obj = new JSONObject();
+                obj.put("access_token",mAccessToken);
+                obj.put("version", 1);
+                obj.put("seq", 1);
+                obj.put("room_id", roomId);
+                obj.put("mode", 0);
+                obj.put("limit",50);
+                obj.put("marker","");
+                HttpURLConnection connection = null;
+                try {
+                    URL url=new URL(urlpath);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setDoInput(true);
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Accept", "application/json");
+                    OutputStreamWriter streamWriter = new OutputStreamWriter(connection.getOutputStream());
+                    streamWriter.write(obj.toString());
+                    streamWriter.flush();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+                        InputStreamReader streamReader = new InputStreamReader(connection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(streamReader);
+                        String response = null;
+                        while ((response = bufferedReader.readLine()) != null) {
+                            stringBuilder.append(response);
+                        }
+                        bufferedReader.close();
+
+                        String result = stringBuilder.toString();
+                        JSONObject rep = JSONObject.parseObject(result);
+                        JSONObject data = rep.getJSONObject("data");
+                        String roomid = data.getString("room_id");
+                        JSONArray userArray = data.getJSONArray("user_list");
+                        List<userInfo> userListValue = JSON.parseArray(userArray.toJSONString(), userInfo.class);
+                        List<String> userList = new ArrayList<>();
+                        for (userInfo user : userListValue) {
+                            userList.add(user.user_account);
+                        }
+                        Map<String,List<String>> roomMap  = new HashMap<>();
+                        roomMap.put(roomid,userList);
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(1, roomMap));
+                    } else {
+                        Log.e(TAG, connection.getResponseMessage());
+                    }
+                } catch (Exception exception){
+                    Log.e(TAG, exception.toString());
+                } finally {
+                    if (connection != null){
+                        connection.disconnect();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void sendMessageToRoom(final String urlpath, final String roomId, final List<String> dstAccount,final String msg){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject obj = new JSONObject();
+                obj.put("access_token",mAccessToken);
+                obj.put("version", 1);
+                obj.put("seq", 1);
+                obj.put("room_id", roomId);
+                obj.put("src_user_account",ZegoDataCenter.ZEGO_USER.userID);
+                JSONArray array= JSONArray.parseArray(JSON.toJSONString(dstAccount));
+                obj.put("dst_user_account",array);
+                obj.put("msg_content",msg);
+                HttpURLConnection connection = null;
+                try {
+                    URL url=new URL(urlpath);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setDoInput(true);
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Accept", "application/json");
+                    OutputStreamWriter streamWriter = new OutputStreamWriter(connection.getOutputStream());
+                    streamWriter.write(obj.toString());
+                    streamWriter.flush();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+                        InputStreamReader streamReader = new InputStreamReader(connection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(streamReader);
+                        String response = null;
+                        while ((response = bufferedReader.readLine()) != null) {
+                            stringBuilder.append(response);
+                        }
+                        bufferedReader.close();
+
+                        String result = stringBuilder.toString();
+                        JSONObject rep = JSONObject.parseObject(result);
+                        int code = rep.getIntValue("code");
+                        if(code == 0){
+                            Log.i("" ,"发送消息("+msg+")到房间("+roomId+"）成功！");
+                        }else{
+                            Log.i("" ,"发送消息("+msg+")到房间("+roomId+"）失败！");
+                        }
+                    } else {
+                        Log.e(TAG, connection.getResponseMessage());
+                    }
+                } catch (Exception exception){
+                    Log.e(TAG, exception.toString());
+                } finally {
+                    if (connection != null){
+                        connection.disconnect();
+                    }
+                }
+            }
+        }).start();
     }
 }
