@@ -124,6 +124,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private Set<ZegoChatroomUser> mRoomUsers = new HashSet<>();
 
+    private String mRoomID;
 
     private int screenHeight = 0;
 
@@ -216,6 +217,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                             mspeakButton.setEnabled(false);
                             mspeakStopButton.setBackgroundColor(Color.RED);
                             mspeakStopButton.setEnabled(true);
+
+                            String msg = "开始说话,房间:" +mRoomID;
+                            sendMessageToAllPeople(msg);
                         }
                     }
                 });
@@ -241,6 +245,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                                 mspeakButton.setEnabled(true);
                                 mspeakStopButton.setBackgroundColor(Color.GRAY);
                                 mspeakStopButton.setEnabled(false);
+
+                                String msg = "停止说话,房间:" +mRoomID;
+                                sendMessageToAllPeople(msg);
                             }
                         }
                     });
@@ -297,7 +304,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     @SuppressLint("ResourceAsColor")
     private void createChatroomWithIntent(Intent intent) {
-        String roomID = intent.getStringExtra(EXTRA_KEY_ROOM_ID);
+        mRoomID = intent.getStringExtra(EXTRA_KEY_ROOM_ID);
         String roomName = intent.getStringExtra(EXTRA_KEY_ROOM_NAME);
         int audioBitrate = intent.getIntExtra(EXTRA_KEY_AUDIO_BITRATE, ChatroomInfoHelper.DEFAULT_AUDIO_BITRATE);
         mAudioChannelCount = intent.getIntExtra(EXTRA_KEY_AUDIO_CHANNEL_COUNT, ChatroomInfoHelper.DEFAULT_AUDIO_CHANNEL_COUNT);
@@ -308,7 +315,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setAudioChannelCount(mAudioChannelCount);
         config.setLatencyMode(latencyMode);
 
-        ZegoChatroom.shared().createChatroom(roomID, roomName, createDefaultZegoSeats(), config);
+        ZegoChatroom.shared().createChatroom(mRoomID, roomName, createDefaultZegoSeats(), config);
 
         mspeakStopButton.setBackgroundColor(Color.GRAY);
         mspeakStopButton.setEnabled(false);
@@ -316,7 +323,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mspeakButton.setBackgroundColor(Color.RED);
         mspeakButton.setEnabled(true);
 
-        String msg = "创建房间:" +roomID;
+        String msg = "创建房间:" +mRoomID;
         sendMessageToAllPeople(msg);
     }
 
@@ -334,7 +341,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     }
 
     private void joinChatroomWithIntent(Intent intent) {
-        String roomID = intent.getStringExtra(EXTRA_KEY_ROOM_ID);
+        mRoomID = intent.getStringExtra(EXTRA_KEY_ROOM_ID);
         int audioBitrate = intent.getIntExtra(EXTRA_KEY_AUDIO_BITRATE, ChatroomInfoHelper.DEFAULT_AUDIO_BITRATE);
         mAudioChannelCount = intent.getIntExtra(EXTRA_KEY_AUDIO_CHANNEL_COUNT, ChatroomInfoHelper.DEFAULT_AUDIO_CHANNEL_COUNT);
         int latencyMode = intent.getIntExtra(EXTRA_KEY_LATENCY_MODE, ChatroomInfoHelper.DEFAULT_LATENCY_MODE);
@@ -344,13 +351,16 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setAudioChannelCount(mAudioChannelCount);
         config.setLatencyMode(latencyMode);
 
-        ZegoChatroom.shared().joinChatroom(roomID, config);
+        ZegoChatroom.shared().joinChatroom(mRoomID, config);
 
         mspeakStopButton.setBackgroundColor(Color.GRAY);
         mspeakStopButton.setEnabled(false);
 
         mspeakButton.setBackgroundColor(Color.RED);
         mspeakButton.setEnabled(true);
+
+        String msg = "加入房间:" +mRoomID;
+        sendMessageToAllPeople(msg);
     }
 
     private void exitRoom() {
@@ -392,6 +402,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         ZegoChatroom.shared().removeZegoChatroomCallback(this);
 
         finish();
+
     }
 
     private void releaseDialog() {
@@ -915,7 +926,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     @Override
     public void onRecvCustomCommand(String s, ZegoChatroomUser zegoChatroomUser) {
-        final String msg = "收到来自"+zegoChatroomUser.userID+"的消息:("+s+")";
+        final String msg = zegoChatroomUser.userID+"的消息:("+s+")";
         Log.i("test",msg);
         mBoradCastView.post(new Runnable() {
             @Override public void run() {

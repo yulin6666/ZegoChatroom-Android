@@ -43,7 +43,7 @@
         android:id="@+id/boardCastView"
         android:layout_height="40dp"
         android:layout_width="fill_parent"
-        android:text="测试一下"
+        android:text=""
         android:textColor="#000"
         android:inputType="text"
         android:layout_below="@+id/ll_toolbar"

@@ -211,9 +211,9 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         String roomName = info.room_name;
         String ownerID = info.anchor_id_name;
         String ownerName = info.anchor_nick_name;
-        int audioBitrate = ChatroomInfoHelper.getBitrateFromRoomName(info.room_name);
-        int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromRoomName(info.room_name);
-        int latencyMode = ChatroomInfoHelper.getLatencyModeFromRoomName(info.room_name);
+        int audioBitrate = 64000;
+        int audioChannelCount = 2;
+        int latencyMode = 4;
         startChatroomActivity(roomID, roomName, ownerID, ownerName, audioBitrate, audioChannelCount, latencyMode);
     }
 
