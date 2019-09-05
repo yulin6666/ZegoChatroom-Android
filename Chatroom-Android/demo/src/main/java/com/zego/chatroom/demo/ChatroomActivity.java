@@ -390,6 +390,10 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     }
 
     private void exitRoomInner() {
+
+        String msg = "离开房间:" +mRoomID;
+        sendMessageToAllPeople(msg);
+
         releaseDialog();
 
         // 重置音效相关设置
@@ -400,6 +404,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         ZegoChatroom.shared().leaveRoom();
         ZegoChatroom.shared().removeZegoChatroomCallback(this);
+
+
 
         finish();
 
@@ -926,7 +932,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     @Override
     public void onRecvCustomCommand(String s, ZegoChatroomUser zegoChatroomUser) {
-        final String msg = zegoChatroomUser.userID+"的消息:("+s+")";
+        final String msg = zegoChatroomUser.userID+"("+s+")";
         Log.i("test",msg);
         mBoradCastView.post(new Runnable() {
             @Override public void run() {
