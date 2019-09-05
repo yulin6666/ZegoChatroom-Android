@@ -67,6 +67,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
     private final static int MESSAGE_GET_CHATROOM_LIST = 0x10;
 
+    private TextView mAppName;
+
     private String mUserName;
     /**
      * Intent extra info
@@ -115,6 +117,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         initView();
 
         mUserName = getIntent().getStringExtra(EXTRA_KEY_USERNAME);
+        mAppName = findViewById(R.id.tv_app_name);
+        mAppName.setText("用户名:"+mUserName);
 
         //获得access_token信息
         getAccessToken();
