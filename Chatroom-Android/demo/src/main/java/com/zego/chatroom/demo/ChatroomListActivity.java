@@ -67,6 +67,13 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
     private final static int MESSAGE_GET_CHATROOM_LIST = 0x10;
 
+    private String mUserName;
+    /**
+     * Intent extra info
+     */
+    final static String EXTRA_KEY_USERNAME = "user_name";
+
+
     private String mAccessToken;
 
     private Handler mUiHandler = new Handler(Looper.getMainLooper()) {
@@ -106,6 +113,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         setContentView(R.layout.activity_chatroom_list);
 
         initView();
+
+        mUserName = getIntent().getStringExtra(EXTRA_KEY_USERNAME);
 
         //获得access_token信息
         getAccessToken();
@@ -300,8 +309,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
         String roomID = mCreateRoomDialog.mEtRoomName.getText().toString();
         String roomName = mCreateRoomDialog.mEtRoomName.getText().toString();
-        String ownerID = ZegoDataCenter.ZEGO_USER.userID;
-        String ownerName = ZegoDataCenter.ZEGO_USER.userName;
+        String ownerID = mUserName;
+        String ownerName = mUserName;
         int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString("");
         int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString("");
         int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
