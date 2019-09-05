@@ -68,7 +68,7 @@ public class ZegoDataCenter {
             // 保存用户名
             sp.edit().putString(SP_KEY_USER_NAME, userName).apply();
         }
-        return userName;
+        return "22";
     }
 
     public static String getRoomListUrl() {

@@ -120,6 +120,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         mAppName = findViewById(R.id.tv_app_name);
         mAppName.setText("用户名:"+mUserName);
 
+        ZegoDataCenter.ZEGO_USER.userName = mUserName;
+
         //获得access_token信息
         getAccessToken();
 
@@ -192,6 +194,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                         JSONObject rep = JSONObject.parseObject(result);
                         JSONObject data = rep.getJSONObject("data");
                         mAccessToken = data.getString("access_token");
+                        Log.i(TAG,"accessToken:"+mAccessToken);
                     } else {
                         Log.e(TAG, connection.getResponseMessage());
                     }
@@ -313,8 +316,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
         String roomID = mCreateRoomDialog.mEtRoomName.getText().toString();
         String roomName = mCreateRoomDialog.mEtRoomName.getText().toString();
-        String ownerID = mUserName;
-        String ownerName = mUserName;
+        String ownerID = ZegoDataCenter.ZEGO_USER.userID;
+        String ownerName =  ZegoDataCenter.ZEGO_USER.userName;;
         int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString("");
         int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString("");
         int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
@@ -341,7 +344,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         intent.putExtra(ChatroomActivity.EXTRA_KEY_OWNER_ID, ownerID);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_OWNER_NAME, ownerName);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_ROOM_ID, roomID);
-        intent.putExtra(ChatroomActivity.EXTRA_KEY_ROOM_NAME, ChatroomInfoHelper.getRoomName(roomName, audioBitrate, audioChannelCount, latencyMode));
+        intent.putExtra(ChatroomActivity.EXTRA_KEY_ROOM_NAME, ownerName);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_AUDIO_BITRATE, audioBitrate);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_AUDIO_CHANNEL_COUNT, audioChannelCount);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_LATENCY_MODE, latencyMode);
