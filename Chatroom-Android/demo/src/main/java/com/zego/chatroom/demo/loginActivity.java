@@ -31,6 +31,7 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
     private Button mLoginButton;
 
     public static String mUserName;
+    public static String mRole;
 
     private Handler loginHandler = new Handler() {
 
@@ -40,6 +41,7 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
                 case 1://登录成功
                     Intent intent = new Intent(loginActivity.this, ChatroomListActivity.class);
                     intent.putExtra(ChatroomListActivity.EXTRA_KEY_USERNAME, loginActivity.mUserName);
+                    intent.putExtra(ChatroomListActivity.EXTRA_KEY_USERROLE, loginActivity.mRole);
                     startActivity(intent);
                     break;
                 default:
@@ -112,6 +114,8 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
                         String result = stringBuilder.toString();
                         JSONObject rep = JSONObject.parseObject(result);
                         int ret = rep.getBoolean("result")? 1 : 0;
+                        JSONObject userInfoBean = rep.getJSONObject("userInfoBean");
+                        mRole = userInfoBean.getString("role");
                         loginHandler.sendEmptyMessage(ret);
                     } else {
                         Log.e("", connection.getResponseMessage());

@@ -74,7 +74,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
      * Intent extra info
      */
     final static String EXTRA_KEY_USERNAME = "user_name";
-
+    final static String EXTRA_KEY_USERROLE = "user_role";
 
     private Handler mUiHandler = new Handler(Looper.getMainLooper()) {
         @Override
