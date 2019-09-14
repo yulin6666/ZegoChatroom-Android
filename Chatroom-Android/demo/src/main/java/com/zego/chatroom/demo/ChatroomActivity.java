@@ -221,8 +221,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                             mspeakStopButton.setBackgroundColor(Color.RED);
                             mspeakStopButton.setEnabled(true);
 
-                            String msg = "开始说话,房间:" +mRoomID;
-                            sendMessageToAllPeople(msg);
+//                            String msg = "开始说话,房间:" +mRoomID;
+//                            sendMessageToAllPeople(msg);
                         }
                     }
                 });
@@ -249,8 +249,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                                 mspeakStopButton.setBackgroundColor(Color.GRAY);
                                 mspeakStopButton.setEnabled(false);
 
-                                String msg = "停止说话,房间:" +mRoomID;
-                                sendMessageToAllPeople(msg);
+//                                String msg = "停止说话,房间:" +mRoomID;
+//                                sendMessageToAllPeople(msg);
                             }
                         }
                     });
@@ -327,8 +327,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mspeakButton.setBackgroundColor(Color.RED);
         mspeakButton.setEnabled(true);
 
-        String msg = "创建房间:" +mRoomID;
-        sendMessageToAllPeople(msg);
+//        String msg = "创建房间:" +mRoomID;
+//        sendMessageToAllPeople(msg);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
@@ -406,8 +406,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private void exitRoomInner() {
 
-        String msg = "离开房间:" +mRoomID;
-        sendMessageToAllPeople(msg);
+//        String msg = "离开房间:" +mRoomID;
+//        sendMessageToAllPeople(msg);
 
         releaseDialog();
 
