@@ -203,7 +203,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
         mCreateRoomDialog.resetInput();
 
-        startChatroomActivity(roomID, roomName, ownerID, ownerName, audioBitrate, audioChannelCount, latencyMode);
+        startChatroomActivity(roomID, roomName, ownerID, ownerName,"", audioBitrate, audioChannelCount, latencyMode);
     }
 
     private void joinRoom(ChatroomInfo info) {
@@ -211,13 +211,14 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         String roomName = info.room_name;
         String ownerID = info.anchor_id_name;
         String ownerName = info.anchor_nick_name;
+        String userRole = getIntent().getStringExtra(EXTRA_KEY_USERROLE);
         int audioBitrate = 64000;
         int audioChannelCount = 2;
         int latencyMode = 4;
-        startChatroomActivity(roomID, roomName, ownerID, ownerName, audioBitrate, audioChannelCount, latencyMode);
+        startChatroomActivity(roomID, roomName, ownerID, ownerName,userRole, audioBitrate, audioChannelCount, latencyMode);
     }
 
-    private void startChatroomActivity(String roomID, String roomName, String ownerID, String ownerName, int audioBitrate, int audioChannelCount, int latencyMode) {
+    private void startChatroomActivity(String roomID, String roomName, String ownerID, String ownerName, String userRole,int audioBitrate, int audioChannelCount, int latencyMode) {
         Intent intent = new Intent(this, ChatroomActivity.class);
 
         intent.putExtra(ChatroomActivity.EXTRA_KEY_OWNER_ID, ownerID);
@@ -226,7 +227,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         intent.putExtra(ChatroomActivity.EXTRA_KEY_ROOM_NAME, ownerName);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_AUDIO_BITRATE, audioBitrate);
         intent.putExtra(ChatroomActivity.EXTRA_KEY_AUDIO_CHANNEL_COUNT, audioChannelCount);
-        intent.putExtra(ChatroomActivity.EXTRA_KEY_LATENCY_MODE, latencyMode);
+        intent.putExtra(ChatroomActivity.EXTRA_KEY_UESR_ROLE, userRole);
 
         startActivity(intent);
     }

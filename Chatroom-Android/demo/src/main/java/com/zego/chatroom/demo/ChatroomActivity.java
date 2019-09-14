@@ -100,6 +100,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     final static String EXTRA_KEY_AUDIO_BITRATE = "audio_bitrate";
     final static String EXTRA_KEY_AUDIO_CHANNEL_COUNT = "audio_channel_count";
     final static String EXTRA_KEY_LATENCY_MODE = "latency_mode";
+    final static String EXTRA_KEY_UESR_ROLE = "user_role";
 
     private final static String BODY_KEY = "body";
     private final static String REQUEST_KEY = "req";
@@ -138,6 +139,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private String mMessage;
 
     private  AutoScrollTextView mBoradCastView;
+
+    private String mUserRole;
 
     // 是否正在离开房间
     private boolean isLeavingRoom = false;
@@ -292,6 +295,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mOwner = new ZegoChatroomUser();
         mOwner.userID = intent.getStringExtra(EXTRA_KEY_OWNER_ID);
         mOwner.userName = intent.getStringExtra(EXTRA_KEY_OWNER_NAME);
+        mUserRole = intent.getStringExtra(EXTRA_KEY_UESR_ROLE);
 
         boolean isOwner = isOwner();
 
@@ -353,15 +357,26 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         ZegoChatroom.shared().joinChatroom(mRoomID, config);
 
-        mspeakStopButton.setBackgroundColor(Color.GRAY);
-        mspeakStopButton.setEnabled(false);
+        showOrHidenButtonByRole();
 
-        mspeakButton.setBackgroundColor(Color.RED);
-        mspeakButton.setEnabled(true);
-
-        String msg = "加入房间:" +mRoomID;
-        sendMessageToAllPeople(msg);
+//        String msg = "加入房间:" +mRoomID;
+//        sendMessageToAllPeople(msg);
     }
+
+    private void showOrHidenButtonByRole(){
+
+        if(mUserRole.equals("组员")){
+            mspeakStopButton.setVisibility(View.INVISIBLE);
+            mspeakButton.setVisibility(View.INVISIBLE);
+        }else{
+           mspeakStopButton.setBackgroundColor(Color.GRAY);
+           mspeakStopButton.setEnabled(false);
+
+           mspeakButton.setBackgroundColor(Color.RED);
+           mspeakButton.setEnabled(true);
+        }
+    }
+
 
     private void exitRoom() {
         if (isLeavingRoom) {
