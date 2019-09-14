@@ -64,6 +64,8 @@ import com.zego.chatroom.manager.entity.ResultCode;
 import com.zego.chatroom.manager.log.ZLog;
 import com.zego.chatroom.manager.room.ZegoUserLiveQuality;
 
+import org.w3c.dom.Text;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -86,7 +88,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         ChatroomSeatsAdapter.OnChatroomSeatClickListener, SeatOperationDialog.OnOperationItemClickListener,
         PickUpUserSelectDialog.OnPickUserUpListener {
 
-    private final static String TAG = ChatroomActivity.class.getSimpleName();
+    private final static String TAG = "ChatroomActivity";
 
     private final static int DEFAULT_SEATS_COUNT = 9;
 
@@ -142,6 +144,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private String mUserRole;
 
+    private boolean mspeak;
+
     // 是否正在离开房间
     private boolean isLeavingRoom = false;
 
@@ -167,9 +171,12 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatroom);
 
-        mBoradCastView =  (AutoScrollTextView)findViewById(R.id.boardCastView);
-        mBoradCastView.init(getWindowManager());
-        mBoradCastView.startScroll();
+        TextView roomView = findViewById(R.id.room_text);
+        roomView.append(getIntent().getStringExtra(EXTRA_KEY_ROOM_ID));
+
+//        mBoradCastView =  (AutoScrollTextView)findViewById(R.id.boardCastView);
+//        mBoradCastView.init(getWindowManager());
+//        mBoradCastView.startScroll();
         // 将房间配置设置成默认状态：Mic开，静音关
         ZegoChatroom.shared().muteSpeaker(false);
         ZegoChatroom.shared().muteMic(false);
@@ -188,8 +195,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         //获得access_token信息
         getAccessToken();
 
-
-
+        mspeak = false;
     }
 
     private void initData() {
@@ -208,24 +214,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mspeakButton = findViewById(R.id.speakButton);
         mspeakButton.setOnClickListener(new OnClickListener(){
             public void onClick(View v) {
-                ZegoChatroom.shared().takeSeatAtIndex(mAvailableSeat, new ZegoSeatUpdateCallbackWrapper() {
-                    @Override
-                    public void onCompletion(ResultCode resultCode) {
-                        super.onCompletion(resultCode);
-                        if (!resultCode.isSuccess()) {
-                            Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
-                            mspeakButton.setBackgroundColor(Color.GRAY);
-                            mspeakButton.setEnabled(false);
-                            mspeakStopButton.setBackgroundColor(Color.RED);
-                            mspeakStopButton.setEnabled(true);
-
-//                            String msg = "开始说话,房间:" +mRoomID;
-//                            sendMessageToAllPeople(msg);
-                        }
-                    }
-                });
+                startSpeaker();
             };
         });
 
@@ -233,28 +222,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mspeakStopButton = findViewById(R.id.speakStopButton);
         mspeakStopButton.setOnClickListener(new OnClickListener(){
             public void onClick(View v) {
-                boolean shouldLeaveSeat = (getSeatForUser(ZegoDataCenter.ZEGO_USER) != null);
-                if (shouldLeaveSeat) {
-                    ZegoChatroom.shared().leaveSeat(new ZegoSeatUpdateCallbackWrapper() {
-                        @Override
-                        public void onCompletion(ResultCode resultCode) {
-                            super.onCompletion(resultCode);
-                            boolean isSuccess = resultCode.isSuccess();
-                            if (!isSuccess) {
-                                Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(ChatroomActivity.this, "下麦成功", Toast.LENGTH_SHORT).show();
-                                mspeakButton.setBackgroundColor(Color.RED);
-                                mspeakButton.setEnabled(true);
-                                mspeakStopButton.setBackgroundColor(Color.GRAY);
-                                mspeakStopButton.setEnabled(false);
-
-//                                String msg = "停止说话,房间:" +mRoomID;
-//                                sendMessageToAllPeople(msg);
-                            }
-                        }
-                    });
-                }
+               stopSpeaker();
             };
         });
 
@@ -264,6 +232,60 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mPickUpUserSelectDialog.setOnPickUpUserListener(this);
 
        // initGridRecyclerView();
+    }
+
+    private void startSpeaker(){
+        ZegoChatroom.shared().takeSeatAtIndex(mAvailableSeat, new ZegoSeatUpdateCallbackWrapper() {
+            @Override
+            public void onCompletion(ResultCode resultCode) {
+                super.onCompletion(resultCode);
+                if (!resultCode.isSuccess()) {
+                    Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
+                    mspeakButton.setBackgroundColor(Color.GRAY);
+                    mspeakButton.setEnabled(false);
+                    mspeakStopButton.setBackgroundColor(Color.RED);
+                    mspeakStopButton.setEnabled(true);
+
+                    mspeak = true;
+
+                    if(mUserRole.equals("部长")||mUserRole.equals("副部长")){
+                        String msg = mUserRole+"|"+mRoomID+"|"+"开始说话";
+                        sendMessageToAllPeople(msg);
+                    }
+                }
+            }
+        });
+    }
+
+    private void stopSpeaker(){
+        boolean shouldLeaveSeat = (getSeatForUser(ZegoDataCenter.ZEGO_USER) != null);
+        if (shouldLeaveSeat) {
+            ZegoChatroom.shared().leaveSeat(new ZegoSeatUpdateCallbackWrapper() {
+                @Override
+                public void onCompletion(ResultCode resultCode) {
+                    super.onCompletion(resultCode);
+                    boolean isSuccess = resultCode.isSuccess();
+                    if (!isSuccess) {
+                        Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(ChatroomActivity.this, "下麦成功", Toast.LENGTH_SHORT).show();
+                        mspeakButton.setBackgroundColor(Color.RED);
+                        mspeakButton.setEnabled(true);
+                        mspeakStopButton.setBackgroundColor(Color.GRAY);
+                        mspeakStopButton.setEnabled(false);
+
+                        mspeak = false;
+
+//                        if(mUserRole.equals("部长")||mUserRole.equals("副部长")) {
+//                            String msg = mUserRole + "|" + mRoomID + "|" + "停止说话";
+//                            sendMessageToAllPeople(msg);
+//                        }
+                    }
+                }
+            });
+        }
     }
 
 //    private void initGridRecyclerView() {
@@ -326,9 +348,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         mspeakButton.setBackgroundColor(Color.RED);
         mspeakButton.setEnabled(true);
-
-//        String msg = "创建房间:" +mRoomID;
-//        sendMessageToAllPeople(msg);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
@@ -359,8 +378,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
         showOrHidenButtonByRole();
 
-//        String msg = "加入房间:" +mRoomID;
-//        sendMessageToAllPeople(msg);
     }
 
     private void showOrHidenButtonByRole(){
@@ -406,8 +423,10 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private void exitRoomInner() {
 
-//        String msg = "离开房间:" +mRoomID;
-//        sendMessageToAllPeople(msg);
+//        if(mUserRole.equals("部长")||mUserRole.equals("副部长")) {
+//            String msg = mUserRole + "|" + mRoomID + "|" + "离开房间";
+//            sendMessageToAllPeople(msg);
+//        }
 
         releaseDialog();
 
@@ -947,16 +966,51 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     @Override
     public void onRecvCustomCommand(String s, ZegoChatroomUser zegoChatroomUser) {
-        final String msg = zegoChatroomUser.userID+"("+s+")";
-        Log.i("test",msg);
-        mBoradCastView.post(new Runnable() {
-            @Override public void run() {
-                mBoradCastView.setText(msg);
-                mBoradCastView.init(getWindowManager());
-                mBoradCastView.startScroll();
-                //还可以更新其他的控件
+//        final String msg = zegoChatroomUser.userID+"("+s+")";
+//        Log.i("test",msg);
+//        mBoradCastView.post(new Runnable() {
+//            @Override public void run() {
+//                mBoradCastView.setText(msg);
+//                mBoradCastView.init(getWindowManager());
+//                mBoradCastView.startScroll();
+//                //还可以更新其他的控件
+//            }
+//        });
+        Toast.makeText(ChatroomActivity.this, "收到消息:"+s, Toast.LENGTH_SHORT).show();
+        String[] aa = s.split("\\|");
+        String role = aa[0];
+        String roomID = aa[1];
+        String msg = aa[2];
+
+        //副部长说话逻辑
+        if(role.equals("副部长")&&msg.equals("开始说话")){
+            //本房间
+            if(mRoomID.equals(roomID)){
+                //只打断所有组长说话
+                if(mUserRole.equals("组长")){
+                    if(mspeak){
+                        stopSpeaker();
+                    }
+                }
+            }else{//其他房间
+
             }
-        });
+        }
+
+        //部长说话逻辑
+        if(role.equals("部长")&&msg.equals("开始说话")){
+            //本房间
+            if(mRoomID.equals(roomID)){
+                //打断所有组长和副部长说话
+                if(mUserRole.equals("组长")||mUserRole.equals("副部长")){
+                    if(mspeak){
+                        stopSpeaker();
+                    }
+            }
+            }else{//其他房间
+
+            }
+        }
     }
 
     void sendMessageToAllPeople(String message){
@@ -974,6 +1028,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         map.put(BODY_KEY, body);
                         map.put(REQUEST_KEY, req);
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(0, map));
+                        Log.i(TAG,"获取房间列表成功！");
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -983,6 +1039,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                 map.put(BODY_KEY, BODY_ERROR);
                 map.put(REQUEST_KEY, req);
                 mUiHandler.sendMessage(mUiHandler.obtainMessage(0, map));
+                Log.e(TAG,"获取房间列表失败！");
             }
         });
 
@@ -1071,11 +1128,13 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         Map<String,List<String>> roomMap  = new HashMap<>();
                         roomMap.put(roomid,userList);
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(1, roomMap));
+                        Log.i(TAG,"获取用户列表成功！");
                     } else {
-                        Log.e(TAG, connection.getResponseMessage());
+                        Log.e(TAG, "获取用户列表失败！"+connection.getResponseMessage());
                     }
                 } catch (Exception exception){
                     Log.e(TAG, exception.toString());
+
                 } finally {
                     if (connection != null){
                         connection.disconnect();
@@ -1124,15 +1183,15 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         JSONObject rep = JSONObject.parseObject(result);
                         int code = rep.getIntValue("code");
                         if(code == 0){
-                            Log.i("" ,"发送消息("+msg+")到房间("+roomId+"）成功！");
+                            Log.i(TAG ,"发送消息("+msg+")到房间("+roomId+"）成功！");
                         }else{
-                            Log.i("" ,"发送消息("+msg+")到房间("+roomId+"）失败！");
+                            Log.i(TAG ,"发送消息("+msg+")到房间("+roomId+"）失败！");
                         }
                     } else {
-                        Log.e(TAG, connection.getResponseMessage());
+                        Log.e(TAG,"发送消息("+msg+")到房间("+roomId+"）返回码错误！"+connection.getResponseMessage());
                     }
                 } catch (Exception exception){
-                    Log.e(TAG, exception.toString());
+                    Log.e(TAG, "发送消息("+msg+")到房间("+roomId+"）异常!,错误原因:"+exception.toString());
                 } finally {
                     if (connection != null){
                         connection.disconnect();

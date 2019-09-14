@@ -70,6 +70,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     private TextView mAppName;
 
     private String mUserName;
+
+    private String mUserRole;
     /**
      * Intent extra info
      */
@@ -114,7 +116,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
         mUserName = getIntent().getStringExtra(EXTRA_KEY_USERNAME);
         mAppName = findViewById(R.id.tv_app_name);
-        mAppName.setText("用户名:"+mUserName);
+        mUserRole = getIntent().getStringExtra(EXTRA_KEY_USERROLE);
+        mAppName.setText("用户名:"+mUserName+",职位:"+mUserRole);
 
         ZegoDataCenter.ZEGO_USER.userName = mUserName;
         ZegoDataCenter.ZEGO_USER.userID = mUserName;
@@ -196,14 +199,14 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         String roomID = mCreateRoomDialog.mEtRoomName.getText().toString();
         String roomName = mCreateRoomDialog.mEtRoomName.getText().toString();
         String ownerID = ZegoDataCenter.ZEGO_USER.userID;
-        String ownerName =  ZegoDataCenter.ZEGO_USER.userName;;
+        String ownerName =  ZegoDataCenter.ZEGO_USER.userName;
         int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString("");
         int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString("");
         int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
 
         mCreateRoomDialog.resetInput();
 
-        startChatroomActivity(roomID, roomName, ownerID, ownerName,"", audioBitrate, audioChannelCount, latencyMode);
+        startChatroomActivity(roomID, roomName, ownerID, ownerName,mUserRole, audioBitrate, audioChannelCount, latencyMode);
     }
 
     private void joinRoom(ChatroomInfo info) {
@@ -211,11 +214,10 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         String roomName = info.room_name;
         String ownerID = info.anchor_id_name;
         String ownerName = info.anchor_nick_name;
-        String userRole = getIntent().getStringExtra(EXTRA_KEY_USERROLE);
         int audioBitrate = 64000;
         int audioChannelCount = 2;
         int latencyMode = 4;
-        startChatroomActivity(roomID, roomName, ownerID, ownerName,userRole, audioBitrate, audioChannelCount, latencyMode);
+        startChatroomActivity(roomID, roomName, ownerID, ownerName,mUserRole, audioBitrate, audioChannelCount, latencyMode);
     }
 
     private void startChatroomActivity(String roomID, String roomName, String ownerID, String ownerName, String userRole,int audioBitrate, int audioChannelCount, int latencyMode) {
