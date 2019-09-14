@@ -26,7 +26,7 @@
         android:lines="1"
         android:textColor="#333333"
         android:textSize="20sp"
-        tools:text="退出房间" />
+        tools:text="退出组" />
 
     <TextView
         android:id="@+id/tip_desc"
@@ -39,7 +39,7 @@
         android:layout_marginRight="30dp"
         android:gravity="center"
         android:textSize="12sp"
-        tools:text="房主退出房间后房间将被关闭，是否确定离开" />
+        tools:text="房主退出组后组将被关闭，是否确定离开" />
 
     <LinearLayout
         android:id="@+id/buttonPanel"

@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name">语聊房</string>
     <string name="welcome_user">欢迎您%1$s</string>
-    <string name="create_room">创建房间</string>
-    <string name="room_name">房间名</string>
+    <string name="create_room">创建组</string>
+    <string name="room_name">组名</string>
     <string name="audio_bitrate">音频码率（单位bps，默认值为64000）</string>
     <string name="audio_channel_count">声道数（1\\2，默认值为2）</string>
     <string name="latency_mode">延时模式（LOW2 = 3，LOW3 = 4，默认值为4）</string>
     <string name="create_now">立即创建</string>
-    <string name="room_owner_name">房主: %1$s</string>
-    <string name="exit_room">退出房间</string>
+    <string name="room_owner_name">""</string>
+    <string name="exit_room">退出组</string>
     <string name="comment">评论</string>
     <string name="send">发送</string>
 

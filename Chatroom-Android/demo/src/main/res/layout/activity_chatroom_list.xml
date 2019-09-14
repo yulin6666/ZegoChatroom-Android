@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#666666"
                 android:textSize="16sp"
-                tools:text="暂时没有房间" />
+                tools:text="暂时没有组" />
 
             <TextView
                 android:id="@+id/tip_desc_tv"
@@ -58,7 +58,7 @@
                 android:gravity="center"
                 android:textColor="#999999"
                 android:textSize="12sp"
-                tools:text="您可以尝试下拉刷新或者创建房间" />
+                tools:text="您可以尝试下拉刷新或者创建组" />
         </LinearLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout

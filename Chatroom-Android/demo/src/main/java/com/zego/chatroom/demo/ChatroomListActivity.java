@@ -167,7 +167,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     @Override
     public void onChatroomClick(ChatroomInfo chatroomInfo) {
         if (chatroomInfo == null || TextUtils.isEmpty(chatroomInfo.room_name)) {
-            Toast.makeText(this, "房间错误，进入房间失败！", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "组名错误，进入组失败！", Toast.LENGTH_SHORT).show();
             // 有错误的房间，刷新一下。
             refresh();
             return;
@@ -356,14 +356,14 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     private void showNoChatroom() {
         mRecyclerView.setVisibility(View.GONE);
         mTipLayout.setVisibility(View.VISIBLE);
-        mTipTitleTv.setText("暂无房间");
-        mTipDescTv.setText("您可以尝试下拉刷新，拉取最新信息\n也可以点击下方按钮创建房间");
+        mTipTitleTv.setText("暂无组");
+        mTipDescTv.setText("您可以尝试下拉刷新，拉取最新信息\n也可以点击下方按钮创建组");
     }
 
     private void showErrorTip() {
         mRecyclerView.setVisibility(View.GONE);
         mTipLayout.setVisibility(View.VISIBLE);
         mTipTitleTv.setText("拉取信息异常");
-        mTipDescTv.setText("您可以尝试下拉刷新，重新拉取房间列表信息");
+        mTipDescTv.setText("您可以尝试下拉刷新，重新拉取组列表信息");
     }
 }

@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginLeft="15dp"
-            android:text="房间号"
+            android:text="组名:"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="18sp"
             />
