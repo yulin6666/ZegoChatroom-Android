@@ -169,11 +169,18 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         sendMessageToRoom(" https://test2-liveroom-api.zego.im/cgi/sendmsg", entry.getKey(),entry.getValue(),mMessage);
                     };
                 case 2://刷新房间信息
-                    List<String> userList = (List<String>)msg.obj;
-                    mUserListView.setText("当前在线列表:\n");
-                    for (String userName : userList) {
-                        mUserListView.append(userName+"\n");
+                    Map<String,List<String>> myMap = (Map<String,List<String>>)msg.obj;
+                    if(myMap.containsKey("userlist")){
+                        List<String> userList = myMap.get("userlist");
+                        if(!userList.isEmpty()){
+                            mUserListView.setText("当前在线列表:\n");
+                            for (String userName : userList) {
+                                mUserListView.append(userName+"\n");
+                            }
+                        }
                     }
+
+
             }
         }
     };
@@ -439,7 +446,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                                 for (userInfo user : userListValue) {
                                         userList.add(user.user_account);
                                 }
-                                mUiHandler.sendMessage(mUiHandler.obtainMessage(2, userList));
+                                Map<String,List<String>> roomMap  = new HashMap<>();
+                                roomMap.put("userlist",userList);
+                                mUiHandler.sendMessage(mUiHandler.obtainMessage(2, roomMap));
 
                             } else {
                                 Log.e(TAG, "获取用户列表失败！"+connection.getResponseMessage());
@@ -494,6 +503,49 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         } else {
             exitRoomInner();
         }
+    }
+
+    private void exitRoomWithOutFinish() {
+        boolean shouldLeaveSeat = (getSeatForUser(ZegoDataCenter.ZEGO_USER) != null);
+        if (shouldLeaveSeat) {
+            ZegoChatroom.shared().leaveSeat(new ZegoSeatUpdateCallbackWrapper() {
+                @Override
+                public void onCompletion(ResultCode resultCode) {
+                    super.onCompletion(resultCode);
+                    boolean isSuccess = resultCode.isSuccess();
+                    if (!isSuccess) {
+                        Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
+                    } else {
+                        ZegoChatroom.shared().getMusicPlayer().stop();
+                    }
+                    exitRoomInnerWithoutFinish();
+                }
+            });
+        } else {
+            exitRoomInnerWithoutFinish();
+        }
+    }
+
+    private void exitRoomInnerWithoutFinish() {
+
+//        if(mUserRole.equals("部长")||mUserRole.equals("副部长")) {
+//            String msg = mUserRole + "|" + mRoomID + "|" + "离开房间";
+//            sendMessageToAllPeople(msg);
+//        }
+
+        releaseDialog();
+
+        // 重置音效相关设置
+        ZegoChatroom.shared().setVoiceChangeValue(0.0f);
+        ZegoChatroom.shared().setVirtualStereoAngle(90);
+        ZegoChatroom.shared().setAudioReverbConfig(null);
+        ZegoChatroom.shared().setEnableLoopback(false);
+
+        ZegoChatroom.shared().leaveRoom();
+
+        Toast.makeText(ChatroomActivity.this, "离开房间:"+mRoomID, Toast.LENGTH_SHORT).show();
+
+
     }
 
     private void exitRoomInner() {
@@ -646,7 +698,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         }
         mSeatsAdapter.notifyDataSetChanged();
 
-        notifyPickUpUserDataSet();
+       // notifyPickUpUserDataSet();
     }
 
     @Override
@@ -1068,7 +1120,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                     }
                 }
             }else{//其他房间
-
+                if(mUserRole.equals("组长"))
+                     reJoinRoom(roomID);
             }
         }
 
@@ -1083,9 +1136,30 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                     }
             }
             }else{//其他房间
-
+                if(mUserRole.equals("组长")||mUserRole.equals("副部长"))
+                    reJoinRoom(roomID);
             }
         }
+    }
+
+    void reJoinRoom(String roomID){
+        //先离开房间
+        exitRoomWithOutFinish();
+        //再加入新房间
+        int audioBitrate = ChatroomInfoHelper.DEFAULT_AUDIO_BITRATE;
+        int latencyMode =ChatroomInfoHelper.DEFAULT_LATENCY_MODE;
+
+        ZegoChatroomLiveConfig config = new ZegoChatroomLiveConfig();
+        config.setBitrate(audioBitrate);
+        config.setAudioChannelCount(mAudioChannelCount);
+        config.setLatencyMode(latencyMode);
+
+        ZegoChatroom.shared().joinChatroom(roomID, config);
+
+        mRoomID = roomID;
+        Toast.makeText(ChatroomActivity.this, "加入房间:"+mRoomID, Toast.LENGTH_SHORT).show();
+        TextView roomView = findViewById(R.id.room_text);
+        roomView.setText("组名:"+mRoomID);
     }
 
     void sendMessageToAllPeople(String message){
