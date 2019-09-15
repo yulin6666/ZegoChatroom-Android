@@ -64,6 +64,7 @@ import com.zego.chatroom.manager.entity.ResultCode;
 import com.zego.chatroom.manager.log.ZLog;
 import com.zego.chatroom.manager.room.ZegoUserLiveQuality;
 
+import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
@@ -83,6 +84,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallback,ZegoChatroomCMDCallback, View.OnClickListener,
         ChatroomSeatsAdapter.OnChatroomSeatClickListener, SeatOperationDialog.OnOperationItemClickListener,
@@ -146,6 +150,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
 
     private boolean mspeak;
 
+    private TextView mUserListView;
+
     // 是否正在离开房间
     private boolean isLeavingRoom = false;
 
@@ -162,6 +168,12 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                     for (Map.Entry<String,List<String>> entry : roomMap.entrySet()) {
                         sendMessageToRoom(" https://test2-liveroom-api.zego.im/cgi/sendmsg", entry.getKey(),entry.getValue(),mMessage);
                     };
+                case 2://刷新房间信息
+                    List<String> userList = (List<String>)msg.obj;
+                    mUserListView.setText("当前在线列表:\n");
+                    for (String userName : userList) {
+                        mUserListView.append(userName+"\n");
+                    }
             }
         }
     };
@@ -171,6 +183,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatroom);
 
+        mUserListView = findViewById(R.id.userList);
         TextView roomView = findViewById(R.id.room_text);
         roomView.append(getIntent().getStringExtra(EXTRA_KEY_ROOM_ID));
 
@@ -326,6 +339,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         } else {
             joinChatroomWithIntent(intent);
         }
+
+        createSchedulePool();
     }
 
     @SuppressLint("ResourceAsColor")
@@ -377,7 +392,68 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         ZegoChatroom.shared().joinChatroom(mRoomID, config);
 
         showOrHidenButtonByRole();
+    }
 
+    private void createSchedulePool(){
+        ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+        scheduledThreadPool.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                        JSONObject obj = new JSONObject();
+                        obj.put("access_token",mAccessToken);
+                        obj.put("version", 1);
+                        obj.put("seq", 1);
+                        obj.put("room_id", mRoomID);
+                        obj.put("mode", 0);
+                        obj.put("limit",50);
+                        obj.put("marker","");
+                        HttpURLConnection connection = null;
+                        try {
+                            URL url=new URL("https://test2-liveroom-api.zego.im/cgi/userlist");
+                            connection = (HttpURLConnection) url.openConnection();
+                            connection.setDoOutput(true);
+                            connection.setDoInput(true);
+                            connection.setRequestMethod("POST");
+                            connection.setRequestProperty("Content-Type", "application/json");
+                            connection.setRequestProperty("Accept", "application/json");
+                            OutputStreamWriter streamWriter = new OutputStreamWriter(connection.getOutputStream());
+                            streamWriter.write(obj.toString());
+                            streamWriter.flush();
+                            StringBuilder stringBuilder = new StringBuilder();
+                            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+                                InputStreamReader streamReader = new InputStreamReader(connection.getInputStream());
+                                BufferedReader bufferedReader = new BufferedReader(streamReader);
+                                String response = null;
+                                while ((response = bufferedReader.readLine()) != null) {
+                                    stringBuilder.append(response);
+                                }
+                                bufferedReader.close();
+
+                                String result = stringBuilder.toString();
+                                JSONObject rep = JSONObject.parseObject(result);
+                                JSONObject data = rep.getJSONObject("data");
+                                String roomid = data.getString("room_id");
+                                JSONArray userArray = data.getJSONArray("user_list");
+                                List<userInfo> userListValue = JSON.parseArray(userArray.toJSONString(), userInfo.class);
+                                List<String> userList = new ArrayList<>();
+                                for (userInfo user : userListValue) {
+                                        userList.add(user.user_account);
+                                }
+                                mUiHandler.sendMessage(mUiHandler.obtainMessage(2, userList));
+
+                            } else {
+                                Log.e(TAG, "获取用户列表失败！"+connection.getResponseMessage());
+                            }
+                        } catch (Exception exception){
+                            Log.e(TAG, exception.toString());
+
+                        } finally {
+                            if (connection != null){
+                                connection.disconnect();
+                            }
+                        }
+            }
+        }, 1, 5, TimeUnit.SECONDS);
     }
 
     private void showOrHidenButtonByRole(){
@@ -400,7 +476,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             return;
         }
         isLeavingRoom = true;
-
         boolean shouldLeaveSeat = (getSeatForUser(ZegoDataCenter.ZEGO_USER) != null);
         if (shouldLeaveSeat) {
             ZegoChatroom.shared().leaveSeat(new ZegoSeatUpdateCallbackWrapper() {

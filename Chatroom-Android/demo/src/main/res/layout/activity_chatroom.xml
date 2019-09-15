@@ -61,6 +61,14 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/userList"
+        android:layout_width="285dp"
+        android:layout_height="248dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="100dp"
+        android:text="" />
+
     <Button
         android:id="@+id/speakButton"
         android:layout_width="50dp"
@@ -81,5 +89,6 @@
         android:background="@android:color/darker_gray"
         android:radius="30dp"
         android:text="停止" />
+
 
 </RelativeLayout>
