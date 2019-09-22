@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -69,26 +70,15 @@
         android:layout_marginTop="100dp"
         android:text="" />
 
-    <Button
-        android:id="@+id/speakButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="500dp"
-        android:background="#ff0000"
-        android:radius="30dp"
-        android:text="说话" />
-
-    <Button
-        android:id="@+id/speakStopButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="500dp"
-        android:layout_marginRight="30dp"
-        android:background="@android:color/darker_gray"
-        android:radius="30dp"
-        android:text="停止" />
-
+    <TextView
+        android:id="@+id/btn"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="300dp"
+        android:background="@drawable/bg"
+        android:gravity="center"
+        android:text="开始说话"
+        android:textColor="@color/black" />
 
 </RelativeLayout>

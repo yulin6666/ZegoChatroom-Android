@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -118,8 +119,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private ZegoChatroomUser mOwner;
 
     private View mFlLoading;
-    private Button mspeakButton;
-    private Button mspeakStopButton;
 
     private List<ChatroomSeatInfo> mSeats = new ArrayList<>();
 
@@ -143,6 +142,8 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private String mAccessToken;
 
     private String mMessage;
+
+    private TextView mSpeakButton;
 
     private  AutoScrollTextView mBoradCastView;
 
@@ -230,20 +231,27 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         mFlLoading = findViewById(R.id.fl_loading);
         mFlLoading.setVisibility(View.VISIBLE);
 
-        //说话
-        mspeakButton = findViewById(R.id.speakButton);
-        mspeakButton.setOnClickListener(new OnClickListener(){
-            public void onClick(View v) {
-                startSpeaker();
-            };
-        });
-
-        //停止说话
-        mspeakStopButton = findViewById(R.id.speakStopButton);
-        mspeakStopButton.setOnClickListener(new OnClickListener(){
-            public void onClick(View v) {
-               stopSpeaker();
-            };
+        mSpeakButton=(TextView) findViewById(R.id.btn);
+        mSpeakButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction())
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        mSpeakButton.animate().scaleX(1.5f).scaleY(1.5f).setDuration(500).start();
+                        mSpeakButton.setText("正在说话");
+                        mSpeakButton.setTextColor(Color.RED);
+                        startSpeaker();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mSpeakButton.animate().scaleX(1).scaleY(1).setDuration(500).start();
+                        mSpeakButton.setText("开始说话");
+                        mSpeakButton.setTextColor(Color.BLACK);
+                        stopSpeaker();
+                        break;
+                }
+                return true;
+            }
         });
 
         findViewById(R.id.tv_exit_room).setOnClickListener(this);
@@ -263,10 +271,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                     Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
-                    mspeakButton.setBackgroundColor(Color.GRAY);
-                    mspeakButton.setEnabled(false);
-                    mspeakStopButton.setBackgroundColor(Color.RED);
-                    mspeakStopButton.setEnabled(true);
 
                     mspeak = true;
 
@@ -291,10 +295,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
                         Toast.makeText(ChatroomActivity.this, "下麦失败", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(ChatroomActivity.this, "下麦成功", Toast.LENGTH_SHORT).show();
-                        mspeakButton.setBackgroundColor(Color.RED);
-                        mspeakButton.setEnabled(true);
-                        mspeakStopButton.setBackgroundColor(Color.GRAY);
-                        mspeakStopButton.setEnabled(false);
 
                         mspeak = false;
 
@@ -364,12 +364,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setLatencyMode(latencyMode);
 
         ZegoChatroom.shared().createChatroom(mRoomID, roomName, createDefaultZegoSeats(), config);
-
-        mspeakStopButton.setBackgroundColor(Color.GRAY);
-        mspeakStopButton.setEnabled(false);
-
-        mspeakButton.setBackgroundColor(Color.RED);
-        mspeakButton.setEnabled(true);
     }
 
     private List<ZegoChatroomSeat> createDefaultZegoSeats() {
@@ -468,14 +462,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private void showOrHidenButtonByRole(){
 
         if(mUserRole.equals("组员")){
-            mspeakStopButton.setVisibility(View.INVISIBLE);
-            mspeakButton.setVisibility(View.INVISIBLE);
+            mSpeakButton.setEnabled(false);
         }else{
-           mspeakStopButton.setBackgroundColor(Color.GRAY);
-           mspeakStopButton.setEnabled(false);
-
-           mspeakButton.setBackgroundColor(Color.RED);
-           mspeakButton.setEnabled(true);
+            mSpeakButton.setEnabled(true);
         }
     }
 
