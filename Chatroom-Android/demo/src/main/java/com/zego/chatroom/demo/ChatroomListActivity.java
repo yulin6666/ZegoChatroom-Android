@@ -29,6 +29,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.zego.chatroom.demo.adapter.ChatroomListAdapter;
 import com.zego.chatroom.demo.bean.ChatroomInfo;
+import com.zego.chatroom.demo.bean.virtualChatroomInfo;
 import com.zego.chatroom.demo.data.ZegoDataCenter;
 import com.zego.chatroom.demo.utils.ChatroomInfoHelper;
 import com.zego.chatroom.demo.utils.UiUtils;
@@ -45,9 +46,12 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -67,11 +71,17 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
     private final static int MESSAGE_GET_CHATROOM_LIST = 0x10;
 
+    private final static int MESSAGE_GET_VIRTUAL_ROOM_LIST = 0x11;
+
     private TextView mAppName;
 
     private String mUserName;
 
     private String mUserRole;
+
+    private List<ChatroomInfo> mchatroomList;
+
+    private ChatroomInfo mCurrentChatRoomInfo;
     /**
      * Intent extra info
      */
@@ -85,6 +95,10 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                 case MESSAGE_GET_CHATROOM_LIST:
                     Map<String, String> map = (Map<String, String>) msg.obj;
                     httpReturn(map.get(BODY_KEY), map.get(REQUEST_KEY));
+                    break;
+                case MESSAGE_GET_VIRTUAL_ROOM_LIST:
+                    Map<String, String> vmap = (Map<String, String>) msg.obj;
+                    virtualHttpReturn(vmap.get(BODY_KEY));
                     break;
             }
         }
@@ -121,6 +135,8 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
         ZegoDataCenter.ZEGO_USER.userName = mUserName;
         ZegoDataCenter.ZEGO_USER.userID = mUserName;
+
+        mchatroomList = new ArrayList<>();
     }
 
 
@@ -172,9 +188,13 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
             refresh();
             return;
         }
-        if (checkOrRequestPermission(PERMISSIONS_REQUEST_CODE)) {
-            joinRoom(chatroomInfo);
-        }
+
+        //保存现有房间
+        mCurrentChatRoomInfo = chatroomInfo;
+
+        //获得真实的列表
+        String url = String.format(Locale.ENGLISH, ZegoDataCenter.getRoomListUrl(), ZegoDataCenter.APP_ID, ZegoDataCenter.APP_ID);
+        httpUrl(url, REQUEST_CHATROOM_LIST);
     }
 
     @Override
@@ -205,6 +225,19 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
 
         mCreateRoomDialog.resetInput();
+
+        startChatroomActivity(roomID, roomName, ownerID, ownerName,mUserRole, audioBitrate, audioChannelCount, latencyMode);
+    }
+
+    private void createNewRoom(ChatroomInfo info) {
+
+        String roomID = info.room_id;
+        String roomName = info.room_name;
+        String ownerID = ZegoDataCenter.ZEGO_USER.userID;
+        String ownerName =  ZegoDataCenter.ZEGO_USER.userName;
+        int audioBitrate = ChatroomInfoHelper.getAudioBitrateFromString("");
+        int audioChannelCount = ChatroomInfoHelper.getAudioChannelCountFromString("");
+        int latencyMode = ChatroomInfoHelper.getLatencyModeFromString("");
 
         startChatroomActivity(roomID, roomName, ownerID, ownerName,mUserRole, audioBitrate, audioChannelCount, latencyMode);
     }
@@ -272,7 +305,43 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
 
 
     // ---------------- 获取房间列表 ---------------- //
+    protected void getVirtualRoom(final String url) {
+        StringRequest request = new StringRequest(url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String body) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(BODY_KEY, body);
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(MESSAGE_GET_VIRTUAL_ROOM_LIST, map));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                ZLog.d(TAG, "onErrorResponse error: " + error.getMessage());
+                Map<String, String> map = new HashMap<>();
+                map.put(BODY_KEY, BODY_ERROR);
+                mUiHandler.sendMessage(mUiHandler.obtainMessage(MESSAGE_GET_VIRTUAL_ROOM_LIST, map));
+            }
+        });
 
+        request.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 5000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 0;
+            }
+
+            @Override
+            public void retry(VolleyError error) {
+
+            }
+        });
+        getRequestQueue().add(request);
+    }
 
     protected void httpUrl(final String url, final String req) {
         StringRequest request = new StringRequest(url,
@@ -320,8 +389,9 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
     }
 
     private void fetchChatroomList() {
-        String url = String.format(Locale.ENGLISH, ZegoDataCenter.getRoomListUrl(), ZegoDataCenter.APP_ID, ZegoDataCenter.APP_ID);
-        httpUrl(url, REQUEST_CHATROOM_LIST);
+        //获得虚拟的列表
+        String vUrl = "http://138.128.223.140/api/roomList";
+        getVirtualRoom(vUrl);
     }
 
     private void httpReturn(String body, String req) {
@@ -330,9 +400,41 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
             try {
                 JSONArray jsonArray = JSON.parseObject(body).getJSONObject(RESPONCE_KEY_DATA).getJSONArray(REQUEST_CHATROOM_LIST);
                 List<ChatroomInfo> roomListValue = JSON.parseArray(jsonArray.toJSONString(), ChatroomInfo.class);
-                List<ChatroomInfo> chatroomList = new ArrayList<>();
+                mchatroomList.clear();
                 for (ChatroomInfo room : roomListValue) {
-                        chatroomList.add(room);
+                    mchatroomList.add(room);
+                }
+                //判断是创建还是加入房间
+                if(mchatroomList.contains(mCurrentChatRoomInfo)){
+                    Toast.makeText(this, "加入房间！", Toast.LENGTH_SHORT).show();
+                    joinRoom(mCurrentChatRoomInfo);
+                }else{
+                    Toast.makeText(this, "创建房间！", Toast.LENGTH_SHORT).show();
+                    createNewRoom(mCurrentChatRoomInfo);
+                }
+
+            } catch (Exception e) {
+                ZLog.w(TAG, "-->:: httpReturn error e: " + e.getMessage());
+                showNoChatroom();
+            }
+        } else {
+            showErrorTip();
+        }
+        // 获取到结果，停止刷新
+        mSwipeLayout.setRefreshing(false);
+    }
+
+    private void virtualHttpReturn(String body) {
+        ZLog.d(TAG, "httpReturn body: " + body);
+        if (body != null && !BODY_ERROR.equals(body)) {
+            try {
+                List<virtualChatroomInfo> roomListValue = JSON.parseArray(body, virtualChatroomInfo.class);
+                List<ChatroomInfo> chatroomList = new ArrayList<>();
+                for (virtualChatroomInfo vRoom : roomListValue) {
+                    ChatroomInfo room = new ChatroomInfo();
+                    room.room_id = vRoom.roomid;
+                    room.room_name = vRoom.roomname;
+                    chatroomList.add(room);
                 }
                 mChatroomListAdapter.setChatrooms(chatroomList);
                 if (chatroomList.size() == 0) {
@@ -341,8 +443,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                     mTipLayout.setVisibility(View.GONE);
                     mRecyclerView.setVisibility(View.VISIBLE);
                 }
-
-            } catch (Exception e) {
+                } catch (Exception e) {
                 ZLog.w(TAG, "-->:: httpReturn error e: " + e.getMessage());
                 showNoChatroom();
             }

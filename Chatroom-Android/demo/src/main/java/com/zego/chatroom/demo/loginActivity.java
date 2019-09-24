@@ -90,7 +90,7 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String urlpath = "http://114.247.187.137/api/userLogin?username="+userName+"&password="+Password;
+                String urlpath = "http://138.128.223.140/api/userLogin?username="+userName+"&password="+Password;
                 HttpURLConnection connection = null;
                 try {
                     URL url=new URL(urlpath);
