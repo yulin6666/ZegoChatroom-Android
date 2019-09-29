@@ -437,7 +437,9 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                     ChatroomInfo room = new ChatroomInfo();
                     room.room_id = vRoom.roomid;
                     room.room_name = vRoom.roomname;
-                    chatroomList.add(room);
+                    if(canAccess(vRoom.joinAuthorityRequest)){
+                        chatroomList.add(room);
+                    }
                 }
                 mChatroomListAdapter.setChatrooms(chatroomList);
                 if (chatroomList.size() == 0) {
@@ -469,5 +471,28 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         mTipLayout.setVisibility(View.VISIBLE);
         mTipTitleTv.setText("拉取信息异常");
         mTipDescTv.setText("您可以尝试下拉刷新，重新拉取组列表信息");
+    }
+
+    private boolean canAccess(String roomAuthority){
+        if(mUserRole.equals("部长")){
+            //部长加入所有
+            return true;
+        }else if(mUserRole.equals("副部长")) {
+            //部长的加不了
+            if(!roomAuthority.equals("部长")){
+                return true;
+            }
+        }else if(mUserRole.equals("组长")){
+            //副部长和部长的加不了
+            if(!roomAuthority.equals("部长") && !roomAuthority.equals("副部长")){
+                return true;
+            }
+        }else if(mUserRole.equals("组员")){
+            //只能加入组员的
+            if(roomAuthority.equals("组员")){
+                return true;
+            }
+        }
+        return false;
     }
 }
