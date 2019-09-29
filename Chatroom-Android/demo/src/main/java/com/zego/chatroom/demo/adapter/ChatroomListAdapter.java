@@ -31,7 +31,7 @@ public class ChatroomListAdapter extends RecyclerView.Adapter<ChatroomListAdapte
         ChatroomInfo chatroomInfo = mChatrooms.get(position);
 
         viewHolder.mTvRoomName.setText(chatroomInfo.room_id);
-        viewHolder.mTvOwnerName.setText(viewHolder.mTvOwnerName.getResources().getString(R.string.room_owner_name, chatroomInfo.anchor_nick_name));
+        viewHolder.mTvOwnerName.setText("仅"+chatroomInfo.anchor_id_name+"及以上人员可见");
 
         viewHolder.itemView.setTag(chatroomInfo);
     }

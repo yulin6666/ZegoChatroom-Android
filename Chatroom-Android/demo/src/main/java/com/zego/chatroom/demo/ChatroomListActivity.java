@@ -437,6 +437,7 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
                     ChatroomInfo room = new ChatroomInfo();
                     room.room_id = vRoom.roomid;
                     room.room_name = vRoom.roomname;
+                    room.anchor_id_name = vRoom.joinAuthorityRequest;
                     if(canAccess(vRoom.joinAuthorityRequest)){
                         chatroomList.add(room);
                     }
