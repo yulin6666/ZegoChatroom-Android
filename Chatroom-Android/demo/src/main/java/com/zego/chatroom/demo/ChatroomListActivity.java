@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -172,7 +173,9 @@ public class ChatroomListActivity extends BaseActivity implements SwipeRefreshLa
         mSwipeLayout.setOnRefreshListener(this);
 
         // 初始化点击事件
-        findViewById(R.id.bt_create_room).setOnClickListener(this);
+        Button create_button = findViewById(R.id.bt_create_room);
+        create_button.setVisibility(View.GONE);
+        create_button.setOnClickListener(this);
     }
 
     @Override

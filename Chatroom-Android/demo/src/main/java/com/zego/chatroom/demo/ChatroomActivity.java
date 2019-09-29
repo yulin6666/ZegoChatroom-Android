@@ -268,7 +268,7 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             public void onCompletion(ResultCode resultCode) {
                 super.onCompletion(resultCode);
                 if (!resultCode.isSuccess()) {
-                    Toast.makeText(ChatroomActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChatroomActivity.this, "上麦失败！", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(ChatroomActivity.this, "上麦成功！", Toast.LENGTH_SHORT).show();
 
@@ -347,6 +347,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
             joinChatroomWithIntent(intent);
         }
 
+        //对按钮操作
+        showOrHidenButtonByRole();
+
         createSchedulePool();
     }
 
@@ -391,8 +394,6 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
         config.setLatencyMode(latencyMode);
 
         ZegoChatroom.shared().joinChatroom(mRoomID, config);
-
-        showOrHidenButtonByRole();
     }
 
     private void createSchedulePool(){
@@ -462,9 +463,9 @@ public class ChatroomActivity extends BaseActivity implements ZegoChatroomCallba
     private void showOrHidenButtonByRole(){
 
         if(mUserRole.equals("组员")){
-            mSpeakButton.setEnabled(false);
+            mSpeakButton.setVisibility(View.INVISIBLE);
         }else{
-            mSpeakButton.setEnabled(true);
+            mSpeakButton.setVisibility(View.VISIBLE);
         }
     }
 
